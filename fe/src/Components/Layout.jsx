@@ -3,19 +3,19 @@ import PropTypes from 'prop-types';
 import Header from './Header';
 
 const Layout = (props) => {
-  const { children } = props;
-  return (
-    <>
-      <Header />
-      <div className="App-pageContent">
-        {children}
-      </div>
-    </>
-  );
+	const { children } = props;
+	return (
+		<>
+			<Header />
+			<div className="App-pageContent">
+				{children}
+			</div>
+		</>
+	);
 };
 
 Layout.propTypes = {
-  children: PropTypes.element.isRequired,
+	children: PropTypes.element.isRequired,
 };
 
 export default Layout;
