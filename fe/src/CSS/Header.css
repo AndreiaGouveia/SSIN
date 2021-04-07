@@ -19,6 +19,7 @@
 #headerLogo{
     width: 35%;
     height: auto;
+    margin-left: 5em;
 }
 
 .navbar-brand{
@@ -28,4 +29,8 @@
     padding-left: 1em;
     width: 9%;
     height: auto;
+}
+
+#basic-navbar-nav{
+    margin-right: 7em;
 }
