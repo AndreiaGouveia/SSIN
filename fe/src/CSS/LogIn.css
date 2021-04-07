@@ -15,7 +15,7 @@
     height: min-content;
     padding: 2vmax;
     padding-top: 3vmax;
-    background-color: #48cfac;
+    background-color: var(--accent-color);
     border-radius: 5%;
 }
 
