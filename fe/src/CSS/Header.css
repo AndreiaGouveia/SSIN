@@ -1,3 +1,7 @@
+:root {
+    --accent-color: #48cfac;
+}
+
 .nav-link{
     font-family: 'Roboto', sans-serif;
     color: white !important;
@@ -5,11 +9,11 @@
 }
 
 .nav-link:hover{
-    color: #48cfac !important;
+    color: var(--accent-color) !important;
 }
 
 #active{
-    color: #48cfac !important;
+    color: var(--accent-color) !important;
 }
 
 .bg-dark {

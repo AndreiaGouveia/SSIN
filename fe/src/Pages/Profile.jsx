@@ -1,4 +1,6 @@
 import React from 'react';
+import HomePage from './HomePage';
+import './../CSS/Profile.css';
 
 class Profile extends React.Component {
 	constructor(props) {
@@ -11,7 +13,16 @@ class Profile extends React.Component {
 	render() {
 		return (
 			<>
-				<h1>Profile Page</h1>
+				<div id="container">
+					<HomePage />
+
+					<div id="profile">
+						<h1>Name</h1>
+						<h2>Description</h2>
+						<hr id="separator" />
+						<h3>Level #</h3>
+					</div>
+				</div>
 			</>
 		);
 	}

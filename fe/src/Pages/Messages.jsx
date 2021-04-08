@@ -1,4 +1,5 @@
 import React from 'react';
+import './../CSS/Messages.css';
 
 class Messages extends React.Component {
 	constructor(props) {
@@ -10,7 +11,14 @@ class Messages extends React.Component {
 	render() {
 		return (
 			<>
-				<h1>Messages Page</h1>
+				<div id="container">
+					<div id="contacts">
+
+					</div>
+					<div id="messages">
+
+					</div>
+				</div>
 			</>
 		);
 	}

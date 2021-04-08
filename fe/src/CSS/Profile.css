@@ -1,0 +1,41 @@
+#container {
+    display: flex;
+    flex-direction: row;
+}
+
+@media (max-width: 991px) {
+    #container {
+        flex-direction: column;
+    }   
+}
+
+#profile {
+    text-align: center;
+    width: 100%;
+    padding: 7vmax;
+    padding-top: 10vmax;
+}
+
+#profile > * {
+    color: white;
+}
+
+#profile > h1 {
+    padding-top: 1vmax;
+    font-size: 5vmax;
+}
+
+#profile > h2, #profile > h3 {
+    font-size: 1.8vmax;
+    font-weight: normal;
+}
+
+#separator {
+    width: 100%;
+    border-width: 8px;
+    border-color: var(--accent-color);
+    border-radius: 10px;
+    
+    margin-top: 2vmax;
+    margin-bottom: 2vmax;
+}
