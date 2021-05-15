@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "prod": "nodemon server.js",
-    "start": "nodemon server.js"
+    "prod": "nodemon server.mjs",
+    "start": "nodemon server.mjs"
   },
   "dependencies": {
     "babel-preset-es2015": "^6.24.1",
