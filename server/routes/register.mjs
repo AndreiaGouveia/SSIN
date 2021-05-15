@@ -5,7 +5,7 @@ import { register } from '../controllers/register.mjs';
 
 let router = express.Router();
 
-router.post('/register',  async function (req, res) {
+router.post('/register',  async (req, res) => {
     console.log('Register');
  
     let username = req.body.username;
