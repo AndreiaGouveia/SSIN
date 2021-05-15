@@ -13,16 +13,16 @@ class Calculator extends React.Component {
       value: '',
       response: '',
     };
+
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
-  onSubmit(value) {
-    /*setResponse(value);*/
-    console.log('here');
-    console.log(value);
+  onSubmit() {
+    //ask the api for the answer
+    this.setState({response: 'Submited'});
   }
 
   render() {
-	console.log(this.state.value);
     return (
       <>
         <div id='content'>
@@ -42,7 +42,7 @@ class Calculator extends React.Component {
                 </Form.Group>
                 <Button
                   variant='primary'
-                  type='submit'
+                  type='button'
                   onClick={this.onSubmit}
                 >
                   Submit
