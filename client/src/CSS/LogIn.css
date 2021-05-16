@@ -1,0 +1,38 @@
+#login {
+    display: flex;
+    flex-direction: row;
+}
+
+@media (max-width: 991px) {
+    #login {
+        flex-direction: column;
+    }   
+}
+
+#login-form {
+    margin-top: 5vmax;
+
+    height: min-content;
+    padding: 2vmax;
+    padding-top: 3vmax;
+    background-color: var(--accent-color);
+    border-radius: 5%;
+}
+
+#login-form > div > input {
+    margin-top: 1vmax;
+    font-size: 1.5vmax;
+}
+
+#login-form > button {
+    margin-top: 1.5vmax;
+
+    font-weight: bold;
+    font-size: 1.5vmax;
+
+    background-color: black;
+    border-color: black;
+    
+    padding-left: 2.5vmax;
+    padding-right: 2.5vmax;
+}

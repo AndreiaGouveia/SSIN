@@ -1,0 +1,72 @@
+#root {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.App-pageContent {
+    flex: 1;
+}
+
+#container {
+    display: flex;
+    flex-direction: row;
+    height: 96%;
+    gap: 0.8em;
+    margin: 1.5%;
+}
+
+@media (max-width: 991px) {
+    #container {
+        flex-direction: column;
+    }   
+}
+
+#container > * {
+    width: 100%;
+    height: auto;
+}
+
+#contacts {
+    background-color: #dddddd;
+    border-radius: 20px;
+    flex-shrink: 3;
+    overflow: auto;
+    overflow-wrap: break-word;
+    height: 100%;
+}
+
+#messages {
+    background-color: #dddddd;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+
+    padding-top: 0.5em;
+}
+
+#message-feed {
+    display: flex;
+    flex-direction: column-reverse;
+    flex: 1;
+    
+    margin: 0.6em;
+    padding-right: 0.7em;
+}
+
+#input-section {
+    margin: 0.5em;
+    display: flex;
+    gap: 0.2em;
+}
+
+#input-section > input {
+    border-radius: 5px;
+    flex: 1;
+}
+
+#input-section > button {
+    border-radius: 5px;
+    color: white;
+    background-color: var(--accent-color);
+}

@@ -1,0 +1,40 @@
+:root {
+    --accent-color: #48cfac;
+}
+
+.nav-link{
+    font-family: 'Roboto', sans-serif;
+    color: white !important;
+    font-weight: bold;
+}
+
+.nav-link:hover{
+    color: var(--accent-color) !important;
+}
+
+#active{
+    color: var(--accent-color) !important;
+}
+
+.bg-dark {
+    background-color: black!important;
+}
+
+#headerLogo{
+    width: 35%;
+    height: auto;
+    margin-left: 5em;
+}
+
+.navbar-brand{
+    margin: 0;
+    padding-right: 0;
+    padding-top: 2rem;
+    padding-left: 1em;
+    width: 9%;
+    height: auto;
+}
+
+#basic-navbar-nav{
+    margin-right: 7em;
+}

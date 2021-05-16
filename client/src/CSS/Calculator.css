@@ -1,0 +1,26 @@
+#calculatorContent{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+#calculator-form {
+    margin-top: 5vmax;
+
+    height: min-content;
+    padding: 8vmax;
+    padding-top: 10vmax;
+    padding-bottom: 10vmax;
+    background-color: white;
+    border-radius: 5%;
+}
+
+#calculatorOutput{
+    margin-top: 5vmax;
+
+    padding: 8vmax;
+    padding-top: 10vmax;
+    padding-bottom: 10vmax;
+    background-color: white;
+    border-radius: 5%;
+}
