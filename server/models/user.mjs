@@ -14,6 +14,9 @@ const userSchema = new mongoose.Schema({
     stringId: {
         type: String,
         unique: true
+    },
+    publicKey: {
+        type: String
     }
 });
 
