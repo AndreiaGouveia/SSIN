@@ -1,0 +1,17 @@
+.message-bubble {
+    width: fit-content;
+    height: fit-content;
+    padding: 0.5em;
+    border-radius: 10px;
+    margin-top: 0.8em;
+}
+
+.right {
+    background-color: var(--accent-color);
+    margin-right: 0;
+    margin-left: auto;
+}
+
+.left {
+    background-color: #c6c6c6;
+}
