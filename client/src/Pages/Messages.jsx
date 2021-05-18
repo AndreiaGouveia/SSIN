@@ -24,7 +24,8 @@ const Messages = (props) => {
 		callApiWithToken('http://localhost:8080/chat/contacts')
 			.then((result) => {
 				result.clone().text().then((content) => {
-					setContacts(JSON.parse(content));
+					const allContacts = JSON.parse(content);
+					setContacts(allContacts.filter(contact => contact.username !== (localStorage.getItem('username') || '')));
 				});
 			})
 			.catch(err => {
