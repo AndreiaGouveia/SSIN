@@ -28,7 +28,7 @@ const register = async (username, id) => {
  * 
  * @param username 
  * @param id 
- * @returns 0 -> register successfull
+ * @returns 0 -> login successfull
  *          1 -> username not found
  *          2 -> wrong ID
  */
