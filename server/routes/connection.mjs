@@ -19,11 +19,9 @@ router.post('/update_connection',  async (req, res) => {
 
     switch (result){
         case 0:
-            return res.status(200).send("Register successfull.");
+            return res.status(200).send("Socket updated successfully.");
         case 1:
-            return res.status(401).send("Username not found.");
-        case 2:
-            return res.status(401).send("Wrong ID.");
+            return res.status(401).send("User not found.");
     }
 })
 

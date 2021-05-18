@@ -15,7 +15,7 @@ const update_connection = async (username, socket) => {
         return 1; // user not found
     }
 
-    return 0; // update connection successfull
+    return 0; // update socket successfull
 }
 
 export { update_connection };
