@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
 
-const userSchema = new mongoose.Schema({
+const User =  mongoose.model('User', new mongoose.Schema({
     username: {
         type: String,
         unique: true,
     },
-    name: {
+    fullName: {
         type: String
     },
     clearanceLvl: {
@@ -18,6 +18,11 @@ const userSchema = new mongoose.Schema({
     publicKey: {
         type: String
     }
-});
+}));
 
-export default mongoose.model('User', userSchema);
+User.findUser = async (name) => {
+    return User.findOne({ username: name }).exec();
+}
+
+
+export default User;
