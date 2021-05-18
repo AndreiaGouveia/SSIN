@@ -1,4 +1,5 @@
 import Peer from 'peerjs';
+import { callApiWithToken } from './fetch';
 
 // Keeps track of current connections
 export const connections = [];
@@ -35,8 +36,17 @@ export const addConnection = (conn, setListener = true) => {
 
     if (setListener) {
         conn.on('data', function (data) {
-            console.log('Received', data);
-            // TODO: store message in session storage
+            const receivedMessagesString = localStorage.getItem('received-messages');
+
+            if (receivedMessagesString) {
+                const userReceivedMessages = JSON.parse(receivedMessagesString);
+                userReceivedMessages.push(data);
+                localStorage.setItem('received-messages', JSON.stringify(userReceivedMessages));
+            } else {
+                localStorage.setItem('received-messages', JSON.stringify([data]));
+            }
+
+            // TODO: show notification
         });
     }
 
@@ -50,9 +60,34 @@ export const addConnection = (conn, setListener = true) => {
     });
 };
 
-peer.on('open', function (id) {
+peer.on('open', async function (id) {
     console.log('My peer ID is: ' + id);
-    // TODO: tell server my ID
+    
+    let registered = sessionPeerId ? true : false;
+    let i = 0;
+
+    while (!registered && i < 2) {
+        const names = ['Filipe Barbosa', 'Um Gajo'];
+        const usernames = ['FilipeBarbosa', 'UmGajo'];
+
+        try {
+            const result = await callApiWithToken('http://localhost:8080/chat/register', null, 'POST',
+                {
+                    chat_id: id,
+                    name: names[i],
+                    username: usernames[i]
+                });
+
+            if (result.status === 200) {
+                console.log(`Registered with username ${usernames[i]}`);
+                registered = true;
+            } else {
+                i++;
+            }
+        } catch (err) {
+            i++;
+        }
+    }
 
     // Store ID in session storage for later reload
     sessionStorage.setItem('webrtc-peer', id);

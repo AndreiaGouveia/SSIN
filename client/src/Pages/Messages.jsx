@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { peer, connections, addConnection } from '../webrtc';
+import { callApiWithToken } from '../fetch';
 import Contact from '../Components/Contact';
 import Message from '../Components/Message';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -11,58 +12,24 @@ const Messages = (props) => {
 	const [conn, setConn] = useState(null);
 
 	const [myMessage, setMyMessage] = useState('');
-	const [contacts, setContacts] = useState([
-		{ id: '4175740862', username: 'FilipeBarbosa', name: 'Filipe Barbosa' },
-		{ id: '1512400931', username: 'UmGajo', name: 'Um Gajo' },
-		{ id: '6892236940', username: 'OutroGajo', name: 'Outro Gajo' }
-	]);
+	const [contacts, setContacts] = useState([]);
 	const [sentMessages, setSentMessages] = useState([]);
-	const [receivedMessages, setReceivedMessages] = useState([]);
+	const [receivedMessages, setReceivedMessages] = useState([{ timestamp: (new Date()).toString(), content: 'some random shit', author: 'me', to: 'FilipeBarbosa' }]);
 
-	// Code to populate storage
-	// localStorage.setItem('received-messages', JSON.stringify([
-	// 	{
-	// 		timestamp: '2018-08-19T13:20:10+0000',
-	// 		content: 'Mensagem teste 3',
-	// 		to: 'me',
-	// 		author: 'FilipeBarbosa'
-	// 	},
-	// 	{
-	// 		timestamp: '2018-08-21T13:20:10+0000',
-	// 		content: 'Mensagem teste 4',
-	// 		to: 'me',
-	// 		author: 'FilipeBarbosa'
-	// 	},
-	// 	{
-	// 		timestamp: '2018-08-19T13:20:10+0000',
-	// 		content: 'Nós falámos ontem',
-	// 		to: 'me',
-	// 		author: 'UmGajo'
-	// 	},
-	// 	{
-	// 		timestamp: '2018-08-19T13:21:10+0000',
-	// 		content: 'Não te lembras?',
-	// 		to: 'me',
-	// 		author: 'UmGajo'
-	// 	}
-	// ]));
-	// localStorage.setItem('sent-messages', JSON.stringify([
-	// 	{
-	// 		timestamp: '2018-08-21T13:25:10+0000',
-	// 		content: 'Mensagem teste 5',
-	// 		to: 'FilipeBarbosa',
-	// 		author: 'me'
-	// 	},
-	// 	{
-	// 		timestamp: '2018-08-19T13:26:10+0000',
-	// 		content: 'Não...',
-	// 		to: 'UmGajo',
-	// 		author: 'me'
-	// 	}
-	// ]));
+	const receivedMessagesRef = useRef({});
+	receivedMessagesRef.current = receivedMessages;
 
 	useEffect(() => {
 		// TODO: get contacts and select the first one
+		callApiWithToken('http://localhost:8080/chat/contacts')
+			.then((result) => {
+				result.clone().text().then((content) => {
+					setContacts(JSON.parse(content));
+				});
+			})
+			.catch(err => {
+				console.log(err);
+			});
 	}, []);
 
 	useEffect(() => {
@@ -99,10 +66,10 @@ const Messages = (props) => {
 		const foundConn = connections.find(connection => connection.peer === selectedUserId);
 
 		if (foundConn) {
+			setConn(foundConn);
+
 			foundConn.on('data', function (data) {
-				console.log('Received', data);
-				setReceivedMessages([...receivedMessages, data]);
-				// TODO: store message in session storage
+				setReceivedMessages([...receivedMessagesRef.current, data]);
 			});
 		} else {
 			const conn = peer.connect(selectedUserId);
@@ -115,9 +82,17 @@ const Messages = (props) => {
 
 				// Receive messages
 				conn.on('data', function (data) {
-					console.log('Received', data);
-					setReceivedMessages([...receivedMessages, data]);
-					// TODO: store message in session storage
+					setReceivedMessages([...receivedMessagesRef.current, data]);
+
+					const receivedMessagesString = localStorage.getItem('received-messages');
+
+					if (receivedMessagesString) {
+						const userReceivedMessages = JSON.parse(receivedMessagesString);
+						userReceivedMessages.push(data);
+						localStorage.setItem('received-messages', JSON.stringify(userReceivedMessages));
+					} else {
+						localStorage.setItem('received-messages', JSON.stringify([data]));
+					}
 				});
 			});
 
@@ -146,12 +121,22 @@ const Messages = (props) => {
 			return;
 
 		const currentDate = new Date();
-		const messageObject = { timestamp: currentDate.toString(), content: myMessage };
+		const messageObject = { timestamp: currentDate.toString(), content: myMessage, author: 'me', to: selectedUserName };
 
 		conn.send(messageObject);
 
 		setSentMessages([...sentMessages, messageObject]);
-		// TODO: store message in session storage
+
+		const sentMessagesString = localStorage.getItem('sent-messages');
+
+		if (sentMessagesString) {
+			const userSentMessages = JSON.parse(sentMessagesString);
+			userSentMessages.push(messageObject);
+			localStorage.setItem('sent-messages', JSON.stringify(userSentMessages));
+		} else {
+			localStorage.setItem('sent-messages', JSON.stringify([messageObject]));
+		}
+
 		setMyMessage('');
 	};
 
@@ -187,9 +172,9 @@ const Messages = (props) => {
 			<div id="container">
 				<div id="contacts">
 					<Scrollbars>
-						{contacts.map(contact => <Contact key={contact.id} contactName={contact.name} onClick={() => {
+						{contacts.map(contact => <Contact key={contact.chat_id} contactName={contact.name} onClick={() => {
 							setSelectedUserName(contact.username);
-							setSelectedUserId(contact.id);
+							setSelectedUserId(contact.chat_id);
 						}} selected={contact.username === selectedUserName} />)}
 					</Scrollbars>
 				</div>
