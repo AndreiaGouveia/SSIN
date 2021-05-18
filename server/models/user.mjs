@@ -17,6 +17,9 @@ const User =  mongoose.model('User', new mongoose.Schema({
     },
     publicKey: {
         type: String
+    },
+    socket: {
+        type: String
     }
 }));
 
