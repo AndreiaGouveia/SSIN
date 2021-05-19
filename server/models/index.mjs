@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import User from './User.mjs';
+import User from './user.mjs';
 
 const connectDb = () => {
     return mongoose.connect(

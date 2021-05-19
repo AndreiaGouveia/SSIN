@@ -1,6 +1,6 @@
 'use strict';
 
-import User from '../models/User.mjs';
+import User from '../models/user.mjs';
 
 /**
  * 
