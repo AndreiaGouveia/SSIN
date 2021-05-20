@@ -5,6 +5,39 @@ import { register, login } from '../controllers/user.mjs';
 
 let router = express.Router();
 
+router.get('/pre-register', async (req, res) => {
+    res.render('pre-register');
+})
+
+router.post('/pre-register',  async (req, res) => {
+    console.log('Pre-Register');
+    console.log(req.body);
+    let username = req.body.username;
+    let fullName = req.body.fullName;
+    let clearanceLvl = req.body.clearanceLvl;
+
+    if(username == null){
+        return res.render('pre-register', {error: "Insert Username."});
+    }
+    if(username.length > 8){
+        return res.render('pre-register', {error: "Username can only have 8 characters."});
+    }
+    if(fullName == null){
+        return res.render('pre-register', {error: "Insert Full Name."});
+    }
+    if(clearanceLvl == null){
+        return res.render('pre-register', {error: "Insert Clearence Level."});
+    }
+
+    let user = await pre_register(username, fullName, clearanceLvl);
+
+    if(!user){
+        return res.render('pre-register', {error: "Username already in use."});
+    }
+
+    return res.render('pre-register-success', {user: user});
+})
+
 router.post('/register',  async (req, res) => {
     console.log('Register');
  
