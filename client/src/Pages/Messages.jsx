@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useToasts } from 'react-toast-notifications';
 import { peer, connections, addConnection, removeConnection } from '../webrtc';
 import { callApiWithToken } from '../fetch';
 import Contact from '../Components/Contact';
@@ -7,6 +8,8 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import './../CSS/Messages.css';
 
 const Messages = (props) => {
+    const { addToast } = useToasts();
+
 	const [selectedUserId, setSelectedUserId] = useState('');
 	const [selectedUserName, setSelectedUserName] = useState('');
 	const [conn, setConn] = useState(null);
@@ -26,7 +29,7 @@ const Messages = (props) => {
 					const allContacts = JSON.parse(content);
 					const filteredContacts = allContacts.filter(contact => contact.username !== (localStorage.getItem('username') || ''));
 					setContacts(filteredContacts);
-					
+
 					if (filteredContacts.length > 0) {
 						setSelectedUserId(filteredContacts[0].socket);
 						setSelectedUserName(filteredContacts[0].username);
@@ -84,11 +87,11 @@ const Messages = (props) => {
 		} else {
 			const conn = peer.connect(selectedUserId);
 
-			addConnection(conn, false);
-			setConn(conn);
-
 			conn.on('open', function () {
 				console.log('I oppened a connection!');
+
+				addConnection(conn, false);
+				setConn(conn);
 
 				// Receive messages
 				conn.on('data', function (data) {
@@ -132,11 +135,16 @@ const Messages = (props) => {
 		if (!myMessage)
 			return;
 
-		if (!conn)
+		if (!conn) {
+			addToast('User is offline', {
+				appearance: 'info',
+				autoDismiss: true,
+			});
 			return;
+		}
 
 		const currentDate = new Date();
-		const messageObject = { timestamp: currentDate.toString(), content: myMessage, author: 'me', to: selectedUserName };
+		const messageObject = { timestamp: currentDate.toString(), content: myMessage, author: (localStorage.getItem('username') || ''), to: selectedUserName };
 
 		conn.send(messageObject);
 

@@ -39,7 +39,7 @@ export const removeConnection = (conn) => {
  * Add new connection to list of current connections
  * @param {*} conn 
  */
-export const addConnection = (conn, setListener = true) => {
+export const addConnection = (conn, setListener = true) => {    
     if (!conn)
         return;
 
@@ -96,7 +96,13 @@ peer.on('open', async function (id) {
     if (sessionConnectionsString) {
         const sessionConnections = JSON.parse(sessionConnectionsString);
 
-        sessionConnections.map(connection => addConnection(peer.connect(connection.peed_id)));
+        sessionConnections.map(connection => {
+            const connect = peer.connect(connection.peed_id);
+
+            connect.on('open', function () {
+                addConnection(connect);
+            });
+        });
     }
 });
 
