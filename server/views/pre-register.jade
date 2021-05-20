@@ -1,0 +1,20 @@
+doctype html
+html
+    head
+        title Super Secure
+    body
+        h1 Welcome to Super Secure server
+        p Pre-register new colaborator: 
+        form(action="/pre-register", method="post", name="pre-register", enctype="x-www-form-urlencoded")
+            div.input
+                span.label Username 
+                input(type="text", name="username", required) 
+            div.input
+                span.label Full Name 
+                input(type="text", name="fullName", required) 
+            div.input
+                span.label Clearance Level 
+                input(type="number", name="clearanceLvl", min=1, max=3, value=1, required)
+            div.actions
+                input(type="submit", value="Confirm")
+        p #{error}

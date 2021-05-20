@@ -2,6 +2,36 @@
 
 import User from '../models/user.mjs';
 
+
+/**
+ * 
+ * @param username 
+ * @param id 
+ * @returns user
+ */
+ const pre_register = async (username, fullName, clearanceLvl) => {
+    let user = await User.findUser(username);
+
+    if(user){
+        return null; // username already in use
+    }
+
+    let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let stringId = '';
+    for (let i = 0; i < 12; i++) {
+        stringId += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    user = User.create({
+        username: username,
+        fullName: fullName,
+        clearanceLvl: clearanceLvl,
+        stringId: stringId
+    });
+
+    return user; // register successfull
+}
+
 /**
  * 
  * @param username 
