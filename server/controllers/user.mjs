@@ -47,7 +47,7 @@ const login = async (username, id) => {
 }
 
 const getClientsSockets = async () => {
-    let users = await User.find({}, 'username socket').exec();
+    let users = await User.find({}, 'username fullName publicKey socket').exec();
     return users;
 }
 

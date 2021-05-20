@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { peer, connections, addConnection } from '../webrtc';
+import { peer, connections, addConnection, removeConnection } from '../webrtc';
 import { callApiWithToken } from '../fetch';
 import Contact from '../Components/Contact';
 import Message from '../Components/Message';
@@ -20,12 +20,17 @@ const Messages = (props) => {
 	receivedMessagesRef.current = receivedMessages;
 
 	useEffect(() => {
-		// TODO: get contacts and select the first one
-		callApiWithToken('http://localhost:8080/chat/contacts')
+		callApiWithToken('http://localhost:8080/clients')
 			.then((result) => {
 				result.clone().text().then((content) => {
 					const allContacts = JSON.parse(content);
-					setContacts(allContacts.filter(contact => contact.username !== (localStorage.getItem('username') || '')));
+					const filteredContacts = allContacts.filter(contact => contact.username !== (localStorage.getItem('username') || ''));
+					setContacts(filteredContacts);
+					
+					if (filteredContacts.length > 0) {
+						setSelectedUserId(filteredContacts[0].socket);
+						setSelectedUserName(filteredContacts[0].username);
+					}
 				});
 			})
 			.catch(err => {
@@ -72,6 +77,10 @@ const Messages = (props) => {
 			foundConn.on('data', function (data) {
 				setReceivedMessages([...receivedMessagesRef.current, data]);
 			});
+
+			foundConn.on('close', function () {
+				setConn(null);
+			});
 		} else {
 			const conn = peer.connect(selectedUserId);
 
@@ -94,6 +103,11 @@ const Messages = (props) => {
 					} else {
 						localStorage.setItem('received-messages', JSON.stringify([data]));
 					}
+				});
+
+				conn.on('close', function () {
+					removeConnection(conn);
+					setConn(null);
 				});
 			});
 
@@ -173,9 +187,9 @@ const Messages = (props) => {
 			<div id="container">
 				<div id="contacts">
 					<Scrollbars>
-						{contacts.map(contact => <Contact key={contact.chat_id} contactName={contact.name} onClick={() => {
+						{contacts.map(contact => <Contact key={contact.socket} contactName={contact.fullName} onClick={() => {
 							setSelectedUserName(contact.username);
-							setSelectedUserId(contact.chat_id);
+							setSelectedUserId(contact.socket);
 						}} selected={contact.username === selectedUserName} />)}
 					</Scrollbars>
 				</div>
