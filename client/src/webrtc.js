@@ -23,10 +23,23 @@ const storeSessionConnections = () => {
 };
 
 /**
+ * Remove connection from list of current connections
+ * @param {*} conn 
+ */
+export const removeConnection = (conn) => {
+    console.log('Connection has been closed');
+    const connIndex = connections.indexOf(conn);
+    if (connIndex !== -1) {
+        connections.splice(connIndex, 1);
+        storeSessionConnections();
+    }
+};
+
+/**
  * Add new connection to list of current connections
  * @param {*} conn 
  */
-export const addConnection = (conn, setListener = true) => {
+export const addConnection = (conn, setListener = true) => {    
     if (!conn)
         return;
 
@@ -51,41 +64,26 @@ export const addConnection = (conn, setListener = true) => {
     }
 
     conn.on('close', function () {
-        console.log('Connection has been closed');
-        const connIndex = connections.indexOf(conn);
-        if (connIndex !== -1) {
-            connections.splice(connIndex, 1);
-            storeSessionConnections();
-        }
+        removeConnection(conn);
     });
 };
 
 peer.on('open', async function (id) {
     console.log('My peer ID is: ' + id);
-    
-    let registered = sessionPeerId ? true : false;
-    let i = 0;
 
-    while (!registered && i < 2) {
-        const names = ['Filipe Barbosa', 'Um Gajo'];
-        const usernames = ['FilipeBarbosa', 'UmGajo'];
-
+    if (!sessionPeerId) {
         try {
-            const result = await callApiWithToken('http://localhost:8080/chat/register', null, 'POST',
+            const result = await callApiWithToken('http://localhost:8080/update_connection', null, 'POST',
                 {
-                    chat_id: id,
-                    name: names[i],
-                    username: usernames[i]
+                    socket: id,
+                    username: localStorage.getItem('username')
                 });
 
-            if (result.status === 200) {
-                console.log(`Registered with username ${usernames[i]}`);
-                registered = true;
-            } else {
-                i++;
+            if (result.status !== 200) {
+                // TODO: throw error
             }
         } catch (err) {
-            i++;
+            // TODO: throw error
         }
     }
 
@@ -98,7 +96,13 @@ peer.on('open', async function (id) {
     if (sessionConnectionsString) {
         const sessionConnections = JSON.parse(sessionConnectionsString);
 
-        sessionConnections.map(connection => addConnection(peer.connect(connection.peed_id)));
+        sessionConnections.map(connection => {
+            const connect = peer.connect(connection.peed_id);
+
+            connect.on('open', function () {
+                addConnection(connect);
+            });
+        });
     }
 });
 

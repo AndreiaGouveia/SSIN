@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { peer, connections, addConnection } from '../webrtc';
+import { useToasts } from 'react-toast-notifications';
+import { peer, connections, addConnection, removeConnection } from '../webrtc';
 import { callApiWithToken } from '../fetch';
 import Contact from '../Components/Contact';
 import Message from '../Components/Message';
@@ -7,6 +8,8 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import './../CSS/Messages.css';
 
 const Messages = (props) => {
+    const { addToast } = useToasts();
+
 	const [selectedUserId, setSelectedUserId] = useState('');
 	const [selectedUserName, setSelectedUserName] = useState('');
 	const [conn, setConn] = useState(null);
@@ -20,12 +23,17 @@ const Messages = (props) => {
 	receivedMessagesRef.current = receivedMessages;
 
 	useEffect(() => {
-		// TODO: get contacts and select the first one
-		callApiWithToken('http://localhost:8080/chat/contacts')
+		callApiWithToken('http://localhost:8080/clients')
 			.then((result) => {
 				result.clone().text().then((content) => {
 					const allContacts = JSON.parse(content);
-					setContacts(allContacts.filter(contact => contact.username !== (localStorage.getItem('username') || '')));
+					const filteredContacts = allContacts.filter(contact => contact.username !== (localStorage.getItem('username') || ''));
+					setContacts(filteredContacts);
+
+					if (filteredContacts.length > 0) {
+						setSelectedUserId(filteredContacts[0].socket);
+						setSelectedUserName(filteredContacts[0].username);
+					}
 				});
 			})
 			.catch(err => {
@@ -72,14 +80,18 @@ const Messages = (props) => {
 			foundConn.on('data', function (data) {
 				setReceivedMessages([...receivedMessagesRef.current, data]);
 			});
+
+			foundConn.on('close', function () {
+				setConn(null);
+			});
 		} else {
 			const conn = peer.connect(selectedUserId);
 
-			addConnection(conn, false);
-			setConn(conn);
-
 			conn.on('open', function () {
 				console.log('I oppened a connection!');
+
+				addConnection(conn, false);
+				setConn(conn);
 
 				// Receive messages
 				conn.on('data', function (data) {
@@ -94,6 +106,11 @@ const Messages = (props) => {
 					} else {
 						localStorage.setItem('received-messages', JSON.stringify([data]));
 					}
+				});
+
+				conn.on('close', function () {
+					removeConnection(conn);
+					setConn(null);
 				});
 			});
 
@@ -118,11 +135,16 @@ const Messages = (props) => {
 		if (!myMessage)
 			return;
 
-		if (!conn)
+		if (!conn) {
+			addToast('User is offline', {
+				appearance: 'info',
+				autoDismiss: true,
+			});
 			return;
+		}
 
 		const currentDate = new Date();
-		const messageObject = { timestamp: currentDate.toString(), content: myMessage, author: 'me', to: selectedUserName };
+		const messageObject = { timestamp: currentDate.toString(), content: myMessage, author: (localStorage.getItem('username') || ''), to: selectedUserName };
 
 		conn.send(messageObject);
 
@@ -173,9 +195,9 @@ const Messages = (props) => {
 			<div id="container">
 				<div id="contacts">
 					<Scrollbars>
-						{contacts.map(contact => <Contact key={contact.chat_id} contactName={contact.name} onClick={() => {
+						{contacts.map(contact => <Contact key={contact.socket} contactName={contact.fullName} onClick={() => {
 							setSelectedUserName(contact.username);
-							setSelectedUserId(contact.chat_id);
+							setSelectedUserId(contact.socket);
 						}} selected={contact.username === selectedUserName} />)}
 					</Scrollbars>
 				</div>
