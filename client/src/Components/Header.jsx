@@ -14,7 +14,6 @@ class Header extends React.Component {
 	}
 
 	render() {
-		// localStorage.clear();
 		console.log('I am being reloaded');
 		console.log(getUser());
 		return (
