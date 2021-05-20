@@ -2,6 +2,7 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEquals } from '@fortawesome/free-solid-svg-icons';
 import { Form, Button } from 'react-bootstrap';
+import Header from '../Components/Header';
 import '../CSS/Calculator.css';
 
 class Calculator extends React.Component {
@@ -19,12 +20,13 @@ class Calculator extends React.Component {
 
   onSubmit() {
     //ask the api for the answer
-    this.setState({response: 'Submited'});
+    this.setState({ response: 'Submited' });
   }
 
   render() {
     return (
       <>
+        <Header />
         <div id='content'>
           <h1 style={{ color: 'white', fontWeight: 'bold', fontSize: '6vmax' }}>
             Operations
@@ -37,14 +39,10 @@ class Calculator extends React.Component {
                     type='text'
                     as='textarea'
                     placeholder='Operation...'
-                    onChange={(e) => this.setState({value: e.target.value})}
+                    onChange={(e) => this.setState({ value: e.target.value })}
                   />
                 </Form.Group>
-                <Button
-                  variant='primary'
-                  type='button'
-                  onClick={this.onSubmit}
-                >
+                <Button variant='primary' type='button' onClick={this.onSubmit}>
                   Submit
                 </Button>
               </Form>

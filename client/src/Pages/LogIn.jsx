@@ -4,6 +4,7 @@ import HomePage from './HomePage';
 import './../CSS/LogIn.css';
 import { register } from '../auth.js';
 import { Redirect } from 'react-router-dom';
+import Header from '../Components/Header';
 
 class LogIn extends React.Component {
   constructor(props) {
@@ -22,7 +23,7 @@ class LogIn extends React.Component {
     let username = event.target[0].value;
     let id = event.target[1].value;
 
-	//to do : inserir função para buscar as keys
+    //to do : inserir função para buscar as keys
     let publicKey = 'sou a public key';
     let privateKey = 'sou a private key';
 
@@ -34,9 +35,37 @@ class LogIn extends React.Component {
     if (!this.state.redirect) {
       return (
         <>
+          <Header />
           <div id='login'>
-            <HomePage />
-
+            <div style={{ marginTop: '8vmax', paddingLeft: '8vmax' }}>
+              <h1
+                style={{
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '7vmax',
+                }}
+              >
+                Secure
+              </h1>
+              <h1
+                style={{
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '7vmax',
+                }}
+              >
+                Connection
+              </h1>
+              <h3
+                style={{
+                  color: '#ececec',
+                  fontSize: '2vmax',
+                  paddingTop: '0.5vmax',
+                }}
+              >
+                Expertise. Commitment. Value
+              </h3>
+            </div>
             <div className='container h-100'>
               <div className='row h-100 justify-content-center align-items-center'>
                 <div className='col-10 col-md-8 col-lg-6'>

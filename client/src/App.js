@@ -8,14 +8,12 @@ import LogIn from './Pages/LogIn';
 import Calculator from './Pages/Calculator';
 import Messages from './Pages/Messages';
 import Profile from './Pages/Profile';
-import Layout from './Components/Layout';
 import { getUser } from './auth.js';
 import './App.css';
 
 function App() {
   return (
     <ToastProvider>
-      <Layout>
         <BrowserRouter>
           <Switch>
             {getUser().username === null ? (
@@ -33,7 +31,6 @@ function App() {
             )}
           </Switch>
         </BrowserRouter>
-      </Layout>
     </ToastProvider>
   );
 }
