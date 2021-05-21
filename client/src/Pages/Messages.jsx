@@ -152,6 +152,19 @@ const Messages = (props) => {
   const sendMyMessage = () => {
     if (!myMessage) return;
 
+    const privateKey = localStorage.getItem('privateKey');
+
+    let enc = new TextEncoder();
+    let encMessage = enc.encode(myMessage);
+
+    const encryptedMessage = window.crypto.subtle.encrypt(
+      {
+        name: 'RSA-OAEP'
+      },
+      privateKey,
+      encMessage
+    );
+
     if (!conn) {
       addToast('User is offline', {
         appearance: 'info',
@@ -163,7 +176,7 @@ const Messages = (props) => {
     const currentDate = new Date();
     const messageObject = {
       timestamp: currentDate.toString(),
-      content: myMessage,
+      content: encMessage,
       author: localStorage.getItem('username') || '',
       to: selectedUserName,
     };

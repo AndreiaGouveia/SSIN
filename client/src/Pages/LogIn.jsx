@@ -11,15 +11,32 @@ class LogIn extends React.Component {
     this.performLogIn = this.performLogIn.bind(this);
   }
 
+  async componentDidMount() {
+
+    const keyPair = await window.crypto.subtle.generateKey(
+      {
+        name: 'RSA-OAEP',
+        modulusLength: 4096,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: 'SHA-256'
+      },
+      true,
+      ['encrypt', 'decrypt']
+    );
+
+
+    this.publicKey = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
+    this.privateKey = await crypto.subtle.exportKey('jwk', keyPair.privateKey);
+
+    console.log(this.publicKey);
+    console.log(this.privateKey);
+  }
+
   async performLogIn(event) {
     let username = event.target[0].value;
     let id = event.target[1].value;
 
-    // TODO : inserir função para buscar as keys
-    let publicKey = 'sou a public key';
-    let privateKey = 'sou a private key';
-
-    if (!(await register(username, id, publicKey, privateKey))) {
+    if (!(await register(username, id, this.publicKey, this.privateKey))) {
       event.preventDefault();
     }
   }

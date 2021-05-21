@@ -2,6 +2,13 @@ import { callApiWithToken } from './fetch';
 
 export const register = async (username, id, publicKey, privateKey) => {
 
+    // TODO DELETE
+    console.log('register before');
+    console.log(publicKey);
+    console.log(privateKey);
+    console.log('register after');
+    // TODO DELETE
+
     try {
         let result = await callApiWithToken('http://localhost:8080/register', null, 'POST',
             {
@@ -13,8 +20,8 @@ export const register = async (username, id, publicKey, privateKey) => {
             localStorage.setItem('username', username);
             localStorage.setItem('privateKey', privateKey);
             return true;
-        }else {
-           return false;
+        } else {
+            return false;
         }
     } catch (err) {
         console.log(err);
@@ -24,8 +31,8 @@ export const register = async (username, id, publicKey, privateKey) => {
 
 export const getUser = () => {
     return {
-        'username' : localStorage.getItem('username'),
-        'privateKey' : localStorage.getItem('privateKey'),
+        'username': localStorage.getItem('username'),
+        'privateKey': localStorage.getItem('privateKey'),
     };
 };
 
