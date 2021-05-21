@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from '../Components/Header';
+import { callApiWithToken } from '../fetch';
 import { getUser } from '../auth';
 import './../CSS/Profile.css';
 
@@ -7,12 +8,38 @@ class Profile extends React.Component {
   constructor(props) {
     super(props);
 
+    const user = getUser();
+
+    this.state = {
+      username: user.username,
+      fullName: '',
+      clearanceLevel: 1
+    };
+
     // This is useless for now, but i think that we will have states later on,
     // so ignore the warnings
   }
 
+  async componentDidMount() {
+    try {
+      let result = await callApiWithToken('http://localhost:8080/user', null, 'POST',
+        {
+          username: this.state.username
+        });
+
+      if (result.status === 200) {
+        const resultJson = await result.json();
+        this.setState({
+          fullName: resultJson.fullName,
+          clearanceLevel: resultJson.clearanceLvl
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   render() {
-    const user = getUser();
 
     return (
       <>
@@ -49,10 +76,10 @@ class Profile extends React.Component {
           </div>
 
           <div id='profile'>
-            <h1>{user.username}</h1>
-            <h2>{user.username}</h2>
+            <h1>{this.state.fullName}</h1>
+            <h2>{this.state.username}</h2>
             <hr id='separator' />
-            <h3>Level #</h3>
+            <h3>Level { this.state.clearanceLevel }</h3>
           </div>
         </div>
       </>
