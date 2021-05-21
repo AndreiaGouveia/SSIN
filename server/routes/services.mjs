@@ -2,7 +2,7 @@
 
 import express from 'express';
 
-import { getClientsSockets } from '../controllers/user.mjs';
+import { getClientsSockets, getUserInfo } from '../controllers/user.mjs';
 import { service1 } from '../controllers/service1.mjs';
 import { service2 } from '../controllers/service2.mjs';
 import { service3 } from '../controllers/service3.mjs';
@@ -40,14 +40,20 @@ router.post('/service_1', async (req, res) => {
 router.post('/service_2', async (req, res) => {
     console.log('Service_2');
 
-    if (req.body.value1 && isInteger(req.body.value1) && req.body.value2 && isInteger(req.body.value2)) {
-        let result = await service2(req.body.value1, req.body.value2);
+    if (req.body.username && req.body.value1 && isInteger(req.body.value1) && req.body.value2 && isInteger(req.body.value2)) {
+        const userInfo = await getUserInfo(req.body.username);
 
-        const resultObject = {
-            result: result
+        if (userInfo.clearanceLvl >= 2) {
+            let result = await service2(req.body.value1, req.body.value2);
+
+            const resultObject = {
+                result: result
+            }
+
+            res.status(200).send(resultObject);
+        } else {
+            res.sendStatus(401);
         }
-
-        res.status(200).send(resultObject);
     } else {
         res.sendStatus(400);
     }
@@ -56,14 +62,20 @@ router.post('/service_2', async (req, res) => {
 router.post('/service_3', async (req, res) => {
     console.log('Service_3');
 
-    if (req.body.value1 && isInteger(req.body.value1) && req.body.value2 && isInteger(req.body.value2)) {
-        let result = await service3(req.body.value1, req.body.value2);
+    if (req.body.username && req.body.value1 && isInteger(req.body.value1) && req.body.value2 && isInteger(req.body.value2)) {
+        const userInfo = await getUserInfo(req.body.username);
 
-        const resultObject = {
-            result: result
+        if (userInfo.clearanceLvl >= 3) {
+            let result = await service3(req.body.value1, req.body.value2);
+
+            const resultObject = {
+                result: result
+            }
+
+            res.status(200).send(resultObject);
+        } else {
+            res.sendStatus(401);
         }
-
-        res.status(200).send(resultObject);
     } else {
         res.sendStatus(400);
     }

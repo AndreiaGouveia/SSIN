@@ -48,9 +48,9 @@ class Calculator extends React.Component {
                     marginBottom: '5vh'
                   }}
                     as="select" onChange={this.onSelectChange}>
-                    <option value={1}>Add</option>
-                    <option value={2}>Multiply</option>
-                    <option value={3}>Divide</option>
+                    <option value={1}>Add (Level 1)</option>
+                    <option value={2}>Multiply (Level 2)</option>
+                    <option value={3}>Divide (Level 3)</option>
                   </Form.Control>
                   <Form.Control
                     type='text'
