@@ -11,7 +11,6 @@ export const register = async (username, id, publicKey, privateKey) => {
 
         if (result.status === 200) {
             localStorage.setItem('username', username);
-            localStorage.setItem('id', id);
             localStorage.setItem('privateKey', privateKey);
             return true;
         }else {
@@ -19,13 +18,13 @@ export const register = async (username, id, publicKey, privateKey) => {
         }
     } catch (err) {
         console.log(err);
+        return false;
     }
 };
 
 export const getUser = () => {
     return {
         'username' : localStorage.getItem('username'),
-        'id' : localStorage.getItem('id'),
         'privateKey' : localStorage.getItem('privateKey'),
     };
 };
