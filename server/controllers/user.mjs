@@ -81,4 +81,8 @@ const getClientsSockets = async () => {
     return users;
 }
 
-export { pre_register, register, login, getClientsSockets };
+const getUserInfo = async (username) => {
+    return await User.findUser(username);
+}
+
+export { pre_register, register, login, getClientsSockets , getUserInfo };
