@@ -14,23 +14,22 @@ import './App.css';
 function App() {
   return (
     <ToastProvider>
-        <BrowserRouter>
-          <Switch>
-            {getUser().username === null ? (
-              <>
-                <Route exact path='/login' component={LogIn} />{' '}
-                <Route exact path='/' component={HomePage} />
-              </>
-            ) : (
-              <>
-                <Route exact path='/messages' component={Messages} />
-                <Route exact path='/calculator' component={Calculator} />
-                <Route exact path='/profile' component={Profile} />
-                <Route exact path='/' component={HomePage} />
-              </>
-            )}
-          </Switch>
-        </BrowserRouter>
+      <BrowserRouter>
+        <Switch>
+          {getUser().username === null ? (
+            <>
+              <Route exact path='/' component={LogIn} />
+            </>
+          ) : (
+            <>
+              <Route exact path='/messages' component={Messages} />
+              <Route exact path='/calculator' component={Calculator} />
+              <Route exact path='/profile' component={Profile} />
+              <Route exact path='/' component={HomePage} />
+            </>
+          )}
+        </Switch>
+      </BrowserRouter>
     </ToastProvider>
   );
 }

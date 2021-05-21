@@ -1,4 +1,5 @@
 import Peer from 'peerjs';
+import { getUser } from './auth';
 import { callApiWithToken } from './fetch';
 
 // Keeps track of current connections
@@ -76,7 +77,7 @@ peer.on('open', async function (id) {
             const result = await callApiWithToken('http://localhost:8080/update_connection', null, 'POST',
                 {
                     socket: id,
-                    username: localStorage.getItem('username')
+                    username: getUser().username
                 });
 
             if (result.status !== 200) {

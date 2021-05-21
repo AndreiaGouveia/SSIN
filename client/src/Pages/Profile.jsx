@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from '../Components/Header';
+import { getUser } from '../auth';
 import './../CSS/Profile.css';
 
 class Profile extends React.Component {
@@ -11,6 +12,8 @@ class Profile extends React.Component {
   }
 
   render() {
+    const user = getUser();
+
     return (
       <>
         <Header />
@@ -46,8 +49,8 @@ class Profile extends React.Component {
           </div>
 
           <div id='profile'>
-            <h1>Name</h1>
-            <h2>Description</h2>
+            <h1>{user.username}</h1>
+            <h2>{user.username}</h2>
             <hr id='separator' />
             <h3>Level #</h3>
           </div>
