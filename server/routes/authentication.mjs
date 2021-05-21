@@ -1,7 +1,7 @@
 "use strict";
 
 import express from 'express';
-import { register, login } from '../controllers/user.mjs';
+import { register, login, pre_register } from '../controllers/user.mjs';
 
 let router = express.Router();
 

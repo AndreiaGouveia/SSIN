@@ -81,4 +81,4 @@ const getClientsSockets = async () => {
     return users;
 }
 
-export { register, login, getClientsSockets };
+export { pre_register, register, login, getClientsSockets };

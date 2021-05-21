@@ -5,10 +5,11 @@ import { connectDb } from './models/index.mjs';
 import { ExpressPeerServer } from 'peer';
 
 dotenv.config();
-const bparser_form = express.json()
+
 const app = express();
 
-app.use(bparser_form)
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // Enable CORS (for local testing only -remove in production/deployment)
 app.use((req, res, next) => {
