@@ -3,9 +3,7 @@
 import express from 'express';
 
 import { getClientsInfo, getUserInfo } from '../controllers/user.mjs';
-import { service1 } from '../controllers/service1.mjs';
-import { service2 } from '../controllers/service2.mjs';
-import { service3 } from '../controllers/service3.mjs';
+import { service1, service2, service3 } from '../controllers/service.mjs';
 
 let router = express.Router();
 
@@ -33,7 +31,7 @@ router.post('/service_1', async (req, res) => {
 
         res.status(200).send(resultObject);
     } else {
-        res.sendStatus(400);
+        res.sendStatus(400).send("value1 and value2 must be integers");
     }
 })
 
@@ -55,7 +53,7 @@ router.post('/service_2', async (req, res) => {
             res.sendStatus(401);
         }
     } else {
-        res.sendStatus(400);
+        res.sendStatus(400).send("value1 and value2 must be integers");
     }
 })
 
@@ -77,7 +75,7 @@ router.post('/service_3', async (req, res) => {
             res.sendStatus(401);
         }
     } else {
-        res.sendStatus(400);
+        res.sendStatus(400).send("value1 and value2 must be integers");
     }
 })
 
