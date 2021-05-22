@@ -9,7 +9,7 @@ export const getUser = () => {
 
 export const service = async (value1, value2, service) => {
 
-    const serviceEndpoint = `http://localhost:8080/service_${service}`;
+    const serviceEndpoint = `https://localhost:8080/service_${service}`;
 
     try {
         let result = await callApiWithToken(serviceEndpoint, 'POST',

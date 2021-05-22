@@ -80,7 +80,7 @@ if (getUser().username !== null) {
 
         if (!sessionPeerId) {
             try {
-                const result = await callApiWithToken('http://localhost:8080/update_connection', 'POST',
+                const result = await callApiWithToken('https://localhost:8080/update_connection', 'POST',
                     {
                         socket: id
                     });

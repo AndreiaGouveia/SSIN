@@ -99,8 +99,9 @@ export const register = async (username, id, keys) => {
 */
     localStorage.setItem('username', username);
     localStorage.setItem('id', id);
+    localStorage.setItem('keys', JSON.stringify(keys));
     try {
-        let result = await callApiWithToken('http://localhost:8080/register', 'POST',
+        let result = await callApiWithToken('https://localhost:8080/register', 'POST',
             {
                 publicEncKey: keys.publicKeyEncryptPEM,
                 publicSignKey: keys.publicKeySignPEM
@@ -108,7 +109,6 @@ export const register = async (username, id, keys) => {
 
         if (result.status === 200) {
             console.log('OK');
-            localStorage.setItem('keys', JSON.stringify(keys));
             return true;
         } else {
             console.log('NOT OK');
