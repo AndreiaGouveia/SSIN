@@ -7,7 +7,14 @@
  * @param {*} accessToken Access token to be used for authentication (can be null)
  * @returns Call response
  */
-export const callApiWithToken = async (apiEndpoint, method = null, body = null) => {
+export const callApiWithToken = async (apiEndpoint, method = null, body = {}) => {
+  console.log('callAPI');
+  console.log(apiEndpoint);
+  console.log(body);
+
+  body.username = localStorage.getItem('username');
+  body.ID = localStorage.getItem('id');
+
   const headers = new Headers();
 
   if (body) {

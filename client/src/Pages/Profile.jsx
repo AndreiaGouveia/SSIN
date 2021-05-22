@@ -22,10 +22,7 @@ class Profile extends React.Component {
 
   async componentDidMount() {
     try {
-      let result = await callApiWithToken('http://localhost:8080/user', null, 'POST',
-        {
-          username: this.state.username
-        });
+      let result = await callApiWithToken('http://localhost:8080/user', 'POST');
 
       if (result.status === 200) {
         const resultJson = await result.json();
@@ -79,7 +76,7 @@ class Profile extends React.Component {
             <h1>{this.state.fullName}</h1>
             <h2>{this.state.username}</h2>
             <hr id='separator' />
-            <h3>Level { this.state.clearanceLevel }</h3>
+            <h3>Level {this.state.clearanceLevel}</h3>
           </div>
         </div>
       </>

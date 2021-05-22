@@ -25,8 +25,6 @@ class LogIn extends React.Component {
     );
 
     console.log('Generated Sign Keys');
-    const publicKeySign = signKeyPair.publicKey;
-    const privateKeySign = signKeyPair.privateKey;
 
     const encryptKeyPair = await window.crypto.subtle.generateKey(
       {
@@ -39,19 +37,17 @@ class LogIn extends React.Component {
       ['encrypt', 'decrypt']
     );
     console.log('Generated Encrypt Keys');
-    const publicKeyEncrypt = encryptKeyPair.publicKey;
-    const privateKeyEncrypt = encryptKeyPair.privateKey;
 
-    const publicKeyEncryptPEM = await exportCryptoKey(encryptKeyPair.publicKey);
-    const publicKeySignPEM = await exportCryptoKey(signKeyPair.publicKey);
+    const privateKeyEncryptPEM = await exportCryptoKey(encryptKeyPair.privateKey, 'pkcs8');
+    const privateKeySignPEM = await exportCryptoKey(signKeyPair.privateKey, 'pkcs8');
+    const publicKeyEncryptPEM = await exportCryptoKey(encryptKeyPair.publicKey, 'spki');
+    const publicKeySignPEM = await exportCryptoKey(signKeyPair.publicKey, 'spki');
     console.log('Generated Encrypt Key PEM');
 
     this.keys = {
-      publicKeySign: publicKeySign,
-      privateKeySign: privateKeySign,
-      publicKeyEncrypt: publicKeyEncrypt,
-      privateKeyEncrypt: privateKeyEncrypt,
+      privateKeyEncryptPEM: privateKeyEncryptPEM,
       publicKeyEncryptPEM: publicKeyEncryptPEM,
+      privateKeySignPEM: privateKeySignPEM,
       publicKeySignPEM: publicKeySignPEM
     };
 

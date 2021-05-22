@@ -12,11 +12,10 @@ export const service = async (value1, value2, service) => {
     const serviceEndpoint = `http://localhost:8080/service_${service}`;
 
     try {
-        let result = await callApiWithToken(serviceEndpoint, null, 'POST',
+        let result = await callApiWithToken(serviceEndpoint, 'POST',
             {
                 value1: parseFloat(value1),
                 value2: parseFloat(value2),
-                username: getUser().username
             });
 
         if (result.status === 200) {

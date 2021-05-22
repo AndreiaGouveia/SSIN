@@ -46,10 +46,6 @@ router.post('/register', async (req, res) => {
     let publicEncKey = req.body.publicEncKey;
     let publicSignKey = req.body.publicSignKey;
 
-    const username = req.body.username;
-    const id = req.body.ID;
-    const publicKey = req.body.publicKey;
-
     if (username == null) {
         return res.status(400).send("ERROR: username not defined.");
     }

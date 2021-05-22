@@ -8,6 +8,8 @@ const {
     }
 } = await import('crypto');
 
+
+
 function str2ab(str) {
     const buf = new ArrayBuffer(str.length);
     const bufView = new Uint8Array(buf);
@@ -40,14 +42,15 @@ function importRsaKey(pem) {
     );
 }
 
-function decryptMessage(key, ciphertext) {
-    return subtle.decrypt(
+function decrypt(id, publicEncKey, publicSignKey) {
+    return id;
+    /*return subtle.decrypt(
         {
             name: "RSA-OAEP"
         },
         key,
         ciphertext
-    );
+    );*/
 }
 
 /**
@@ -94,11 +97,11 @@ const register = async (username, id, publicEncKey, publicSignKey) => {
         return 1; // username not found
     }
 
-    if (decript(id, publicEncKey, publicSignKey) !== user.stringId) {
+    if (decrypt(id, publicEncKey, publicSignKey) !== user.stringId) {
         return 2; // wrong ID
     }
 
-    user.updateOne({
+    await user.updateOne({
         publicEncKey: publicEncKey,
         publicSignKey: publicSignKey
     })
@@ -121,7 +124,7 @@ const login = async (username, id) => {
         return 1; // username not found
     }
 
-    if (decript(id, user.publicEncKey, user.publicSignKey) !== user.stringId) {
+    if (decrypt(id, user.publicEncKey, user.publicSignKey) !== user.stringId) {
         return 2; // wrong ID
     }
 
@@ -137,4 +140,4 @@ const getUserInfo = async (username) => {
     return await User.findUser(username);
 }
 
-export { pre_register, register, login, getClientsInfo , getUserInfo };
+export { pre_register, register, login, getClientsInfo, getUserInfo };

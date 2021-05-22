@@ -13,7 +13,8 @@ const isInteger = function (number) {
     return !Number.isNaN(+number) && !Number.isNaN(parseFloat(number, 10));
 };
 
-router.get('/clients', async (req, res) => {
+//TODO - GET
+router.post('/clients', async (req, res) => {
     console.log('Clients Info');
 
     let result = await getClientsInfo();

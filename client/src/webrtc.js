@@ -13,8 +13,7 @@ const peerOptions = {
     iceServers: []
 };
 
-// Connect to server with new ID or previous ID (if it exists)
-export const peer = sessionPeerId ? new Peer(sessionPeerId, peerOptions) : new Peer(peerOptions);
+export let peer;
 
 /**
  * Save current connections to session storage
@@ -36,11 +35,12 @@ export const removeConnection = (conn) => {
     }
 };
 
+
 /**
- * Add new connection to list of current connections
- * @param {*} conn 
- */
-export const addConnection = (conn, setListener = true) => {    
+* Add new connection to list of current connections
+* @param {*} conn 
+*/
+export const addConnection = (conn, setListener = true) => {
     if (!conn)
         return;
 
@@ -69,48 +69,59 @@ export const addConnection = (conn, setListener = true) => {
     });
 };
 
-peer.on('open', async function (id) {
-    console.log('My peer ID is: ' + id);
 
-    if (!sessionPeerId) {
-        try {
-            const result = await callApiWithToken('http://localhost:8080/update_connection', null, 'POST',
-                {
-                    socket: id,
-                    username: getUser().username
-                });
+// Connect to server with new ID or previous ID (if it exists)
+if (getUser().username !== null) {
+    peer = sessionPeerId ? new Peer(sessionPeerId, peerOptions) : new Peer(peerOptions);
 
-            if (result.status !== 200) {
-                // TODO: throw error
+
+    peer.on('open', async function (id) {
+        console.log('My peer ID is: ' + id);
+
+        if (!sessionPeerId) {
+            try {
+                const result = await callApiWithToken('http://localhost:8080/update_connection', 'POST',
+                    {
+                        socket: id
+                    });
+
+                if (result.status !== 200) {
+                    console.log('update_conn error');
+                    console.log(result.status);
+                } else {
+                    console.log(result);
+                }
+            } catch (err) {
+                console.log('update_conn error');
+                console.log(err);
             }
-        } catch (err) {
-            // TODO: throw error
         }
-    }
 
-    // Store ID in session storage for later reload
-    sessionStorage.setItem('webrtc-peer', id);
+        // Store ID in session storage for later reload
+        sessionStorage.setItem('webrtc-peer', id);
 
-    // Restore connections
-    const sessionConnectionsString = sessionStorage.getItem('webrtc-connections');
+        // Restore connections
+        const sessionConnectionsString = sessionStorage.getItem('webrtc-connections');
 
-    if (sessionConnectionsString) {
-        const sessionConnections = JSON.parse(sessionConnectionsString);
+        if (sessionConnectionsString) {
+            const sessionConnections = JSON.parse(sessionConnectionsString);
 
-        sessionConnections.map(connection => {
-            const connect = peer.connect(connection.peed_id);
+            sessionConnections.map(connection => {
+                const connect = peer.connect(connection.peed_id);
 
-            connect.on('open', function () {
-                addConnection(connect);
+                connect.on('open', function () {
+                    addConnection(connect);
+                });
             });
-        });
-    }
-});
+        }
+    });
 
-// Someone created a connection with us
-peer.on('connection', addConnection);
+    // Someone created a connection with us
+    peer.on('connection', addConnection);
 
-peer.on('error', function (err) {
-    if (err.type === 'peer-unavailable')
-        console.log('That dude\'s offline');
-});
+    peer.on('error', function (err) {
+        if (err.type === 'peer-unavailable')
+            console.log('That dude\'s offline');
+    });
+
+}

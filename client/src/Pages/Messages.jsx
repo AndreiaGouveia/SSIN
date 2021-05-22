@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import { peer, connections, addConnection, removeConnection } from '../webrtc';
 import { callApiWithToken } from '../fetch';
+import { importRsaSignKey, importRsaEncKey } from '../auth';
 import Contact from '../Components/Contact';
 import Message from '../Components/Message';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -26,24 +27,69 @@ const Messages = (props) => {
   // }
   const [contacts, setContacts] = useState([]);
   const [sentMessages, setSentMessages] = useState([]);
-  const [receivedMessages, setReceivedMessages] = useState([
-    {
-      timestamp: new Date().toString(),
-      // Content is encrypted with receiver's public key
-      content: {
-        message: 'some random shit',
-        signature: 'iugshpfiasuygdfisa'
-      },
-      author: 'me',
-      to: 'FilipeBarbosa',
-    },
-  ]);
+  const [receivedMessages, setReceivedMessages] = useState([]);
 
   const receivedMessagesRef = useRef({});
   receivedMessagesRef.current = receivedMessages;
 
+  const verifyMessages = async (message) => {
+    console.log('verify messages');
+
+    let dec = new TextDecoder();
+    let enc = new TextEncoder();
+
+    let keys = localStorage.getItem('keys');
+    keys = JSON.parse(keys);
+    const myPrivateEncKeyPEM = keys.privateKeyEncryptPEM;
+    const myPrivateEncKey = await importRsaEncKey(myPrivateEncKeyPEM, 'pkcs8', 'decrypt');
+
+
+    const viewableMessage = {
+      author: message.author,
+      to: message.to,
+      timestamp: message.timestamp
+    };
+
+    const contact = contacts.find((user) => user.username === message.author);
+    const contactPublicSignKeyPEM = contact.publicSignKey;
+    const contactPublicSignKey = await importRsaSignKey(contactPublicSignKeyPEM, 'spki', 'verify');
+
+    console.log('MESSAGE CONTENT');
+    console.log(message.content);
+
+    const content = await window.crypto.subtle.decrypt(
+      {
+        name: 'RSA-OAEP',
+      },
+      myPrivateEncKey, //from generateKey or importKey above
+      message.content //ArrayBuffer of the data
+    );
+
+    const decodedContent = dec.decode(content);
+
+    const decodedCntObj = JSON.parse(decodedContent);
+
+    const { signature: msgSignature, message: msg } = decodedCntObj;
+
+    console.log('signature - ' + msgSignature);
+    console.log('message - ' + msg);
+
+    let encMessage = enc.encode(msg);
+
+    let validMsg = await window.crypto.subtle.verify(
+      'RSASSA-PKCS1-v1_5',
+      contactPublicSignKey,
+      msgSignature,
+      encMessage
+    );
+
+    viewableMessage.content = validMsg ? msg : '⚠ This message might not be from this sender';
+
+    return viewableMessage;
+  };
+
   useEffect(() => {
-    callApiWithToken('http://localhost:8080/clients')
+    callApiWithToken('http://localhost:8080/clients', 'POST')
       .then((result) => {
         result
           .clone()
@@ -68,6 +114,16 @@ const Messages = (props) => {
   }, []);
 
   useEffect(() => {
+    async function populateRecieved(receivedMsgs) {
+
+      const userRcvMsgDec = [];
+      for (let i = 0; i < receivedMsgs.length; i++) {
+        let newMsg = await verifyMessages(receivedMsgs[i]);
+        userRcvMsgDec.push(newMsg);
+      }
+      setReceivedMessages(userRcvMsgDec);
+
+    }
     if (!selectedUserName) return;
 
     const receivedMessagesString = localStorage.getItem('received-messages');
@@ -78,9 +134,7 @@ const Messages = (props) => {
       (message) => message.author === selectedUserName
     );
 
-    // TODO: parse local messages setReceivedMessages[0...n].content decrypt
-
-    setReceivedMessages(userReceivedMessages);
+    populateRecieved(userReceivedMessages);
 
     const sentMessagesString = localStorage.getItem('sent-messages');
 
@@ -94,6 +148,14 @@ const Messages = (props) => {
   }, [selectedUserName]);
 
   useEffect(() => {
+
+    async function populateRecieved(data) {
+
+      const dataView = await verifyMessages(data);
+      setReceivedMessages([...receivedMessagesRef.current, dataView]);
+
+    }
+
     if (!selectedUserId) return;
 
     if (conn) return;
@@ -105,11 +167,8 @@ const Messages = (props) => {
     if (foundConn) {
       setConn(foundConn);
 
-      foundConn.on('data', function (data) {
-
-        // TODO: decrypt data.content, pass data
-
-        setReceivedMessages([...receivedMessagesRef.current, data]);
+      foundConn.on('data', async function (data) {
+        populateRecieved(data);
       });
 
       foundConn.on('close', function () {
@@ -126,11 +185,8 @@ const Messages = (props) => {
 
         // Receive messages
         conn.on('data', function (data) {
-          let dataView = data;
 
-          // TODO: decrypt dataView.content
-
-          setReceivedMessages([...receivedMessagesRef.current, dataView]);
+          populateRecieved(data);
 
           const receivedMessagesString =
             localStorage.getItem('received-messages');
@@ -170,24 +226,51 @@ const Messages = (props) => {
     setMyMessage(event.target.value);
   };
 
-  const sendMyMessage = () => {
+  const sendMyMessage = async () => {
     if (!myMessage) return;
 
-    const contact = contacts.find((user) => user.name === selectedUserName);
-    const contactPublicKey = contact.publicKey;
+    const contact = contacts.find((user) => user.username === selectedUserName);
 
-    const privateKey = localStorage.getItem('privateKey');
+    let contactPublicEncKey = contact.publicEncKey;
+    contactPublicEncKey = await importRsaEncKey(contactPublicEncKey, 'spki', 'encrypt');
+
+    let keys = localStorage.getItem('keys');
+    keys = JSON.parse(keys);
+    const myPrivateSignKeyPEM = keys.privateKeySignPEM;
+    const myPrivateSignKey = await importRsaSignKey(myPrivateSignKeyPEM, 'pkcs8', 'sign');
+
 
     let enc = new TextEncoder();
     let encMessage = enc.encode(myMessage);
 
-    const encryptedMessage = window.crypto.subtle.encrypt(
+    const signature = await window.crypto.subtle.sign(
+      {
+        name: 'RSASSA-PKCS1-v1_5',
+      },
+      myPrivateSignKey, //from generateKey or importKey above
+      encMessage //ArrayBuffer of data you want to sign
+    );
+
+    const msgContent = {
+      message: myMessage,
+      signature: signature
+    };
+
+    console.log('message content');
+    console.log(msgContent);
+
+    const encMsgContent = enc.encode(JSON.stringify(msgContent));
+
+    const encryptedMessage = await window.crypto.subtle.encrypt(
       {
         name: 'RSA-OAEP'
       },
-      privateKey,
-      encMessage
+      contactPublicEncKey,
+      encMsgContent
     );
+
+    console.log('ancrypted message');
+    console.log(encryptedMessage);
 
     if (!conn) {
       addToast('User is offline', {
@@ -205,18 +288,28 @@ const Messages = (props) => {
       to: selectedUserName,
     };
 
+    console.log('conn.send(messageobject)');
+    console.log(messageObject);
+
     conn.send(messageObject);
 
-    setSentMessages([...sentMessages, messageObject]);
+    const storedMsgObject = {
+      timestamp: currentDate.toString(),
+      content: myMessage,
+      author: localStorage.getItem('username') || '',
+      to: selectedUserName
+    };
+
+    setSentMessages([...sentMessages, storedMsgObject]);
 
     const sentMessagesString = localStorage.getItem('sent-messages');
 
     if (sentMessagesString) {
       const userSentMessages = JSON.parse(sentMessagesString);
-      userSentMessages.push(messageObject);
+      userSentMessages.push(storedMsgObject);
       localStorage.setItem('sent-messages', JSON.stringify(userSentMessages));
     } else {
-      localStorage.setItem('sent-messages', JSON.stringify([messageObject]));
+      localStorage.setItem('sent-messages', JSON.stringify([storedMsgObject]));
     }
 
     setMyMessage('');
