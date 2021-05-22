@@ -15,7 +15,10 @@ const User =  mongoose.model('User', new mongoose.Schema({
         type: String,
         unique: true
     },
-    publicKey: {
+    publicEncKey: {
+        type: String
+    },
+    publicSignKey: {
         type: String
     },
     socket: {
