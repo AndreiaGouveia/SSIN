@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import { peer, connections, addConnection, removeConnection } from '../webrtc';
 import { callApiWithToken } from '../fetch';
-import { importRsaSignKey, importRsaEncKey } from '../auth';
+import { importRsaSignKey, importRsaEncKey, ab2str, str2ab } from '../auth';
 import Contact from '../Components/Contact';
 import Message from '../Components/Message';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -55,35 +55,33 @@ const Messages = (props) => {
     const contactPublicSignKey = await importRsaSignKey(contactPublicSignKeyPEM, 'spki', 'verify');
 
     console.log('MESSAGE CONTENT');
-    console.log(message.content);
+    console.log(message.message);
 
-    const content = await window.crypto.subtle.decrypt(
+    const encodedMsgContent = str2ab(message.message);
+    //const decodedMsgContent = dec.decode(encodedMsgContent);
+
+
+
+    const decryptedMessage = await window.crypto.subtle.decrypt(
       {
         name: 'RSA-OAEP',
       },
       myPrivateEncKey, //from generateKey or importKey above
-      message.content //ArrayBuffer of the data
+      encodedMsgContent //ArrayBuffer of the data
     );
 
-    const decodedContent = dec.decode(content);
-
-    const decodedCntObj = JSON.parse(decodedContent);
-
-    const { signature: msgSignature, message: msg } = decodedCntObj;
-
-    console.log('signature - ' + msgSignature);
-    console.log('message - ' + msg);
-
-    let encMessage = enc.encode(msg);
+    const signature = str2ab(message.signature);
 
     let validMsg = await window.crypto.subtle.verify(
       'RSASSA-PKCS1-v1_5',
       contactPublicSignKey,
-      msgSignature,
-      encMessage
+      signature,
+      decryptedMessage
     );
 
-    viewableMessage.content = validMsg ? msg : '⚠ This message might not be from this sender';
+    const decodedMessage = dec.decode(decryptedMessage);
+
+    viewableMessage.message = validMsg ? decodedMessage : '⚠ This message might not be from this sender';
 
     return viewableMessage;
   };
@@ -251,26 +249,22 @@ const Messages = (props) => {
       encMessage //ArrayBuffer of data you want to sign
     );
 
-    const msgContent = {
-      message: myMessage,
-      signature: signature
-    };
-
-    console.log('message content');
-    console.log(msgContent);
-
-    const encMsgContent = enc.encode(JSON.stringify(msgContent));
+    const toSendSignature = ab2str(signature);
 
     const encryptedMessage = await window.crypto.subtle.encrypt(
       {
         name: 'RSA-OAEP'
       },
       contactPublicEncKey,
-      encMsgContent
+      encMessage
     );
 
-    console.log('ancrypted message');
+    console.log('encrypted message');
     console.log(encryptedMessage);
+
+
+    //const encodedEncryptedMessage = enc.encode(encryptedMessage);
+    const toSendEncodedEncryptedMessage = ab2str(encryptedMessage);
 
     if (!conn) {
       addToast('User is offline', {
@@ -283,7 +277,8 @@ const Messages = (props) => {
     const currentDate = new Date();
     const messageObject = {
       timestamp: currentDate.toString(),
-      content: encryptedMessage,
+      message: toSendEncodedEncryptedMessage,
+      signature: toSendSignature,
       author: localStorage.getItem('username') || '',
       to: selectedUserName,
     };
@@ -295,7 +290,7 @@ const Messages = (props) => {
 
     const storedMsgObject = {
       timestamp: currentDate.toString(),
-      content: myMessage,
+      message: myMessage,
       author: localStorage.getItem('username') || '',
       to: selectedUserName
     };
@@ -374,7 +369,7 @@ const Messages = (props) => {
             {getSortedMessageList().map((message, index) => (
               <Message
                 key={index}
-                content={message.content}
+                content={message.message}
                 timestamp={message.timestamp}
                 received={message.received}
               />

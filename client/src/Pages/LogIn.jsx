@@ -16,7 +16,7 @@ class LogIn extends React.Component {
     const signKeyPair = await window.crypto.subtle.generateKey(
       {
         name: 'RSASSA-PKCS1-v1_5',
-        modulusLength: 2048, //can be 1024, 2048, or 4096
+        modulusLength: 4096, //can be 1024, 2048, or 4096
         publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
         hash: { name: 'SHA-256' }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
       },
