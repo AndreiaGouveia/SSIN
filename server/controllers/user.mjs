@@ -40,16 +40,21 @@ import User from '../models/user.mjs';
  *          1 -> username not found
  *          2 -> wrong ID
  */
-const register = async (username, id) => {
+const register = async (username, id, publicEncKey, publicSignKey) => {
     let user = await User.findUser(username);
 
     if(!user){
         return 1; // username not found
     }
 
-    if(id !== user.stringId){
+    if(decript(id, publicEncKey, publicSignKey) !== user.stringId){
         return 2; // wrong ID
     }
+
+    user.updateOne({
+        publicEncKey: publicEncKey,
+        publicSignKey: publicSignKey
+    })
 
     return 0; // register successfull
 }
@@ -69,7 +74,7 @@ const login = async (username, id) => {
         return 1; // username not found
     }
 
-    if(id !== user.stringId){
+    if(decript(id, user.publicEncKey, user.publicSignKey) !== user.stringId){
         return 2; // wrong ID
     }
 
