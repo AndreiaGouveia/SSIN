@@ -81,8 +81,8 @@ const login = async (username, id) => {
     return 0; // login successfull
 }
 
-const getClientsSockets = async () => {
-    let users = await User.find({}, 'username fullName publicKey socket').exec();
+const getClientsInfo = async () => {
+    let users = await User.find({}, 'username fullName publicEncKey publicSignKey socket').exec();
     return users;
 }
 
@@ -90,4 +90,4 @@ const getUserInfo = async (username) => {
     return await User.findUser(username);
 }
 
-export { pre_register, register, login, getClientsSockets , getUserInfo };
+export { pre_register, register, login, getClientsInfo , getUserInfo };

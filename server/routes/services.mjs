@@ -2,7 +2,7 @@
 
 import express from 'express';
 
-import { getClientsSockets, getUserInfo } from '../controllers/user.mjs';
+import { getClientsInfo, getUserInfo } from '../controllers/user.mjs';
 import { service1 } from '../controllers/service1.mjs';
 import { service2 } from '../controllers/service2.mjs';
 import { service3 } from '../controllers/service3.mjs';
@@ -16,7 +16,7 @@ const isInteger = function (number) {
 router.get('/clients', async (req, res) => {
     console.log('Clients Info');
 
-    let result = await getClientsSockets();
+    let result = await getClientsInfo();
 
     res.status(200).send(result);
 })
