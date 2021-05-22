@@ -107,7 +107,7 @@ const Messages = (props) => {
 
       foundConn.on('data', function (data) {
 
-        // decrypt data.content, pass data
+        // TODO: decrypt data.content, pass data
 
         setReceivedMessages([...receivedMessagesRef.current, data]);
       });
@@ -128,7 +128,7 @@ const Messages = (props) => {
         conn.on('data', function (data) {
           let dataView = data;
 
-          // decrypt dataView.content
+          // TODO: decrypt dataView.content
 
           setReceivedMessages([...receivedMessagesRef.current, dataView]);
 
