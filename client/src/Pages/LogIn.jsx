@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Button } from 'react-bootstrap';
 import './../CSS/LogIn.css';
-import { register, exportCryptoKey } from '../auth.js';
+import { register, exportCryptoKey, login } from '../auth.js';
 import Header from '../Components/Header';
 import HomePage from './HomePage';
 
@@ -12,6 +12,9 @@ class LogIn extends React.Component {
       isLoading: true,
       username: '',
       id: '',
+      pin: '',
+      repeatPin: '',
+      registered: localStorage.getItem('username') !== null,
       loggedIn: false,
       error: ''
     };
@@ -61,35 +64,81 @@ class LogIn extends React.Component {
     this.setState({ isLoading: false });
   }
 
-  async performLogIn() {
-    let username = this.state.username;
-    let id = this.state.id;
+  async performRegistration() {
+    const { username, id, pin: password, repeatPin: repeatPassword } = this.state;
 
-    if (await register(username, id, this.keys)) {
+    if (!username || !id || !password || !repeatPassword) {
+      this.setState({ error: 'Please fill every field' });
+      return;
+    }
+
+    if (password !== repeatPassword) {
+      this.setState({ error: 'Passwords do not match' });
+      return;
+    }
+
+    this.setState({ error: '' });
+
+    if (await register(username, id, password, this.keys)) {
+      this.setState({ registered: true });
+    } else {
+      this.setState({ registered: false, error: 'Couldn\'t register client' });
+    }
+  }
+
+  async performLogIn() {
+    const { pin } = this.state;
+
+    if (!pin) {
+      this.setState({ error: 'Please enter the PIN' });
+      return;
+    }
+
+    this.setState({ error: '' });
+
+    if (await login(pin)) {
       this.setState({ loggedIn: true });
     } else {
       this.setState({ loggedIn: false, error: 'Couldn\'t register client' });
     }
   }
   render() {
-    console.log(this.state.loggedIn);
     const isLoading = this.state.isLoading;
     let form;
     if (isLoading) {
       form = <div><p>LOADING RSA KEYS</p></div>;
     } else {
-      form =
-        <Form id='login-form'>
-          <Form.Group controlId='formUsername'>
-            <Form.Control type='text' placeholder='Username' maxLength='8' onChange={(event => this.setState({ username: event.target.value }))} />
-          </Form.Group>
-          <Form.Group controlId='formID'>
-            <Form.Control type='text' placeholder='ID' maxLength='12' minLength='12' pattern='([A-Z]|[a-z]|[0-9])+' onChange={(event => this.setState({ id: event.target.value }))} />
-          </Form.Group>
-          <Button variant='primary' type='button' onClick={this.performLogIn}>Log In</Button>
-          <br />
-          <span>{this.state.error}</span>
-        </Form >;
+      if (this.state.registered) {
+        form =
+          <Form id='login-form'>
+            <Form.Group controlId='formID'>
+              <Form.Control type='password' placeholder='PIN' minLength='5' onChange={(event => this.setState({ pin: event.target.value }))} />
+            </Form.Group>
+            <Button variant='primary' type='button' onClick={this.performLogIn}>Log In</Button>
+            <br />
+            <span>{this.state.error}</span>
+          </Form >;
+      }
+      else {
+        form =
+          <Form id='login-form'>
+            <Form.Group controlId='formUsername'>
+              <Form.Control type='text' placeholder='Username' maxLength='8' onChange={(event => this.setState({ username: event.target.value }))} />
+            </Form.Group>
+            <Form.Group controlId='formID'>
+              <Form.Control type='text' placeholder='ID' maxLength='12' minLength='12' pattern='([A-Z]|[a-z]|[0-9])+' onChange={(event => this.setState({ id: event.target.value }))} />
+            </Form.Group>
+            <Form.Group controlId='formID'>
+              <Form.Control type='password' placeholder='PIN' minLength='5' onChange={(event => this.setState({ pin: event.target.value }))} />
+            </Form.Group>
+            <Form.Group controlId='formID'>
+              <Form.Control type='password' placeholder='Repeat PIN' minLength='5' onChange={(event => this.setState({ repeatPin: event.target.value }))} />
+            </Form.Group>
+            <Button variant='primary' type='button' onClick={this.performRegistration}>Register</Button>
+            <br />
+            <span>{this.state.error}</span>
+          </Form >;
+      }
     }
     return (
       <>

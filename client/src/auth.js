@@ -1,4 +1,5 @@
 import { callApiWithToken } from './fetch';
+import bcrypt from 'bcryptjs';
 
 export const ab2str = (buf) => {
     return String.fromCharCode.apply(null, new Uint8Array(buf));
@@ -71,8 +72,10 @@ export const exportCryptoKey = async (key, type) => {
 
 
 
-export const register = async (username, id, keys) => {
+export const register = async (username, id, password, keys) => {
 
+    console.log('Success?');
+    console.log();
 
     //TODO encrypt with server PubK
     /*
@@ -97,8 +100,6 @@ export const register = async (username, id, keys) => {
     };
 
 */
-    localStorage.setItem('username', username);
-    localStorage.setItem('id', id);
     try {
         let result = await callApiWithToken('http://localhost:8080/register', 'POST',
             {
@@ -108,6 +109,10 @@ export const register = async (username, id, keys) => {
 
         if (result.status === 200) {
             console.log('OK');
+            localStorage.setItem('username', username);
+            localStorage.setItem('id', id);
+            const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+            localStorage.setItem('pin', hashedPassword);
             localStorage.setItem('keys', JSON.stringify(keys));
             return true;
         } else {
@@ -121,6 +126,16 @@ export const register = async (username, id, keys) => {
     }
 };
 
+export const login = async (pin) => {
+    const hashedPin = localStorage.getItem('pin');
+
+    if (hashedPin) {
+        return bcrypt.compareSync(pin, hashedPin);
+    }
+
+    return false;
+};
+ 
 export const getUser = () => {
     return {
         'username': localStorage.getItem('username')
