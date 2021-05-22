@@ -3,11 +3,18 @@ import { Form, Button } from 'react-bootstrap';
 import './../CSS/LogIn.css';
 import { register, exportCryptoKey } from '../auth.js';
 import Header from '../Components/Header';
+import HomePage from './HomePage';
 
 class LogIn extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { isLoading: true };
+    this.state = {
+      isLoading: true,
+      username: '',
+      id: '',
+      loggedIn: false,
+      error: ''
+    };
     this.performLogIn = this.performLogIn.bind(this);
   }
 
@@ -54,62 +61,75 @@ class LogIn extends React.Component {
     this.setState({ isLoading: false });
   }
 
-  async performLogIn(event) {
-    event.preventDefault();
-    let username = event.target[0].value;
-    let id = event.target[1].value;
+  async performLogIn() {
+    let username = this.state.username;
+    let id = this.state.id;
 
-    await register(username, id, this.keys);
+    if (await register(username, id, this.keys)) {
+      this.setState({ loggedIn: true });
+    } else {
+      this.setState({ loggedIn: false, error: 'Couldn\'t register client' });
+    }
   }
   render() {
+    console.log(this.state.loggedIn);
     const isLoading = this.state.isLoading;
     let form;
     if (isLoading) {
       form = <div><p>LOADING RSA KEYS</p></div>;
     } else {
-      form = <Form id='login-form' onSubmit={this.performLogIn}> <Form.Group controlId='formUsername'><Form.Control type='text' placeholder='Username' maxLength='8' /> </Form.Group> <Form.Group controlId='formID'> <Form.Control type='text' placeholder='ID' maxLength='12' minLength='12' pattern='([A-Z]|[a-z]|[0-9])+' /></Form.Group><Button variant='primary' type='submit'>Log In</Button></Form>;
+      form =
+        <Form id='login-form'>
+          <Form.Group controlId='formUsername'>
+            <Form.Control type='text' placeholder='Username' maxLength='8' onChange={(event => this.setState({ username: event.target.value }))} />
+          </Form.Group>
+          <Form.Group controlId='formID'>
+            <Form.Control type='text' placeholder='ID' maxLength='12' minLength='12' pattern='([A-Z]|[a-z]|[0-9])+' onChange={(event => this.setState({ id: event.target.value }))} />
+          </Form.Group>
+          <Button variant='primary' type='button' onClick={this.performLogIn}>Log In</Button>
+          <br />
+          <span>{this.state.error}</span>
+        </Form >;
     }
     return (
       <>
-        <Header />
-        <div id='login'>
-          <div style={{ marginTop: '8vmax', paddingLeft: '8vmax' }}>
-            <h1
-              style={{
-                color: 'white',
-                fontWeight: 'bold',
-                fontSize: '7vmax',
-              }}
-            >
-              Secure
-            </h1>
-            <h1
-              style={{
-                color: 'white',
-                fontWeight: 'bold',
-                fontSize: '7vmax',
-              }}
-            >
-              Connection
-            </h1>
-            <h3
-              style={{
-                color: '#ececec',
-                fontSize: '2vmax',
-                paddingTop: '0.5vmax',
-              }}
-            >
-              Expertise. Commitment. Value
-            </h3>
-          </div>
-          <div className='container h-100'>
-            <div className='row h-100 justify-content-center align-items-center'>
-              <div className='col-10 col-md-8 col-lg-6'>
-                {form}
+        { this.state.loggedIn ?
+          <HomePage /> : <>
+            <Header />
+            <div id='login'>
+              <div style={{ marginTop: '8vmax', paddingLeft: '8vmax' }}>
+                <h1
+                  style={{
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontSize: '7vmax',
+                  }}
+                >Secure</h1>
+                <h1
+                  style={{
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontSize: '7vmax',
+                  }}
+                >Connection</h1>
+                <h3
+                  style={{
+                    color: '#ececec',
+                    fontSize: '2vmax',
+                    paddingTop: '0.5vmax',
+                  }}
+                >Expertise. Commitment. Value</h3>
+              </div>
+              <div className='container h-100'>
+                <div className='row h-100 justify-content-center align-items-center'>
+                  <div className='col-10 col-md-8 col-lg-6'>
+                    {form}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </>
+        }
       </>
     );
   }
