@@ -16,12 +16,24 @@ const Messages = (props) => {
   const [conn, setConn] = useState(null);
 
   const [myMessage, setMyMessage] = useState('');
+  // Contacts is array of objects:
+  // {
+  //   username: 'username',
+  //   fullName: 'fullname',
+  //   socket: 'chat id',
+  //   publicEncKey: 'iugdfpaisugf',
+  //   publicSignKey: 'iugdfpaisugf'
+  // }
   const [contacts, setContacts] = useState([]);
   const [sentMessages, setSentMessages] = useState([]);
   const [receivedMessages, setReceivedMessages] = useState([
     {
       timestamp: new Date().toString(),
-      content: 'some random shit',
+      // Content is encrypted with receiver's public key
+      content: {
+        message: 'some random shit',
+        signature: 'iugshpfiasuygdfisa'
+      },
       author: 'me',
       to: 'FilipeBarbosa',
     },
@@ -66,6 +78,8 @@ const Messages = (props) => {
       (message) => message.author === selectedUserName
     );
 
+    // TODO: parse local messages setReceivedMessages[0...n].content decrypt
+
     setReceivedMessages(userReceivedMessages);
 
     const sentMessagesString = localStorage.getItem('sent-messages');
@@ -92,6 +106,9 @@ const Messages = (props) => {
       setConn(foundConn);
 
       foundConn.on('data', function (data) {
+
+        // TODO: decrypt data.content, pass data
+
         setReceivedMessages([...receivedMessagesRef.current, data]);
       });
 
@@ -109,7 +126,11 @@ const Messages = (props) => {
 
         // Receive messages
         conn.on('data', function (data) {
-          setReceivedMessages([...receivedMessagesRef.current, data]);
+          let dataView = data;
+
+          // TODO: decrypt dataView.content
+
+          setReceivedMessages([...receivedMessagesRef.current, dataView]);
 
           const receivedMessagesString =
             localStorage.getItem('received-messages');
@@ -152,6 +173,9 @@ const Messages = (props) => {
   const sendMyMessage = () => {
     if (!myMessage) return;
 
+    const contact = contacts.find((user) => user.name === selectedUserName);
+    const contactPublicKey = contact.publicKey;
+
     const privateKey = localStorage.getItem('privateKey');
 
     let enc = new TextEncoder();
@@ -176,7 +200,7 @@ const Messages = (props) => {
     const currentDate = new Date();
     const messageObject = {
       timestamp: currentDate.toString(),
-      content: encMessage,
+      content: encryptedMessage,
       author: localStorage.getItem('username') || '',
       to: selectedUserName,
     };

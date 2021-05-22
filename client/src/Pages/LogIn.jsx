@@ -1,19 +1,34 @@
 import React from 'react';
 import { Form, Button } from 'react-bootstrap';
 import './../CSS/LogIn.css';
-import { register } from '../auth.js';
+import { register, exportCryptoKey } from '../auth.js';
 import Header from '../Components/Header';
 
 class LogIn extends React.Component {
   constructor(props) {
     super(props);
-
+    this.state = { isLoading: true };
     this.performLogIn = this.performLogIn.bind(this);
   }
 
   async componentDidMount() {
 
-    const keyPair = await window.crypto.subtle.generateKey(
+    const signKeyPair = await window.crypto.subtle.generateKey(
+      {
+        name: 'RSASSA-PKCS1-v1_5',
+        modulusLength: 2048, //can be 1024, 2048, or 4096
+        publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+        hash: { name: 'SHA-256' }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+      },
+      true, //whether the key is extractable (i.e. can be used in exportKey)
+      ['sign', 'verify'] //can be any combination of "sign" and "verify"
+    );
+
+    console.log('Generated Sign Keys');
+    const publicKeySign = signKeyPair.publicKey;
+    const privateKeySign = signKeyPair.privateKey;
+
+    const encryptKeyPair = await window.crypto.subtle.generateKey(
       {
         name: 'RSA-OAEP',
         modulusLength: 4096,
@@ -23,24 +38,41 @@ class LogIn extends React.Component {
       true,
       ['encrypt', 'decrypt']
     );
+    console.log('Generated Encrypt Keys');
+    const publicKeyEncrypt = encryptKeyPair.publicKey;
+    const privateKeyEncrypt = encryptKeyPair.privateKey;
 
+    const publicKeyEncryptPEM = await exportCryptoKey(encryptKeyPair.publicKey);
+    const publicKeySignPEM = await exportCryptoKey(signKeyPair.publicKey);
+    console.log('Generated Encrypt Key PEM');
 
-    this.publicKey = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
-    this.privateKey = await crypto.subtle.exportKey('jwk', keyPair.privateKey);
+    this.keys = {
+      publicKeySign: publicKeySign,
+      privateKeySign: privateKeySign,
+      publicKeyEncrypt: publicKeyEncrypt,
+      privateKeyEncrypt: privateKeyEncrypt,
+      publicKeyEncryptPEM: publicKeyEncryptPEM,
+      publicKeySignPEM: publicKeySignPEM
+    };
 
-    console.log(this.publicKey);
-    console.log(this.privateKey);
+    this.setState({ isLoading: false });
   }
 
   async performLogIn(event) {
+    event.preventDefault();
     let username = event.target[0].value;
     let id = event.target[1].value;
 
-    if (!(await register(username, id, this.publicKey, this.privateKey))) {
-      event.preventDefault();
-    }
+    await register(username, id, this.keys);
   }
   render() {
+    const isLoading = this.state.isLoading;
+    let form;
+    if (isLoading) {
+      form = <div><p>LOADING RSA KEYS</p></div>;
+    } else {
+      form = <Form id='login-form' onSubmit={this.performLogIn}> <Form.Group controlId='formUsername'><Form.Control type='text' placeholder='Username' maxLength='8' /> </Form.Group> <Form.Group controlId='formID'> <Form.Control type='text' placeholder='ID' maxLength='12' minLength='12' pattern='([A-Z]|[a-z]|[0-9])+' /></Form.Group><Button variant='primary' type='submit'>Log In</Button></Form>;
+    }
     return (
       <>
         <Header />
@@ -77,28 +109,7 @@ class LogIn extends React.Component {
           <div className='container h-100'>
             <div className='row h-100 justify-content-center align-items-center'>
               <div className='col-10 col-md-8 col-lg-6'>
-                <Form id='login-form' onSubmit={this.performLogIn}>
-                  <Form.Group controlId='formUsername'>
-                    <Form.Control
-                      type='text'
-                      placeholder='Username'
-                      maxLength='8'
-                    />
-                  </Form.Group>
-
-                  <Form.Group controlId='formID'>
-                    <Form.Control
-                      type='text'
-                      placeholder='ID'
-                      maxLength='12'
-                      minLength='12'
-                      pattern='([A-Z]|[a-z]|[0-9])+'
-                    />
-                  </Form.Group>
-                  <Button variant='primary' type='submit'>
-                    Log In
-                  </Button>
-                </Form>
+                {form}
               </div>
             </div>
           </div>

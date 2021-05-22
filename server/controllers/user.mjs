@@ -2,6 +2,53 @@
 
 import User from '../models/user.mjs';
 
+const {
+    webcrypto: {
+        subtle,
+    }
+} = await import('crypto');
+
+function str2ab(str) {
+    const buf = new ArrayBuffer(str.length);
+    const bufView = new Uint8Array(buf);
+    for (let i = 0, strLen = str.length; i < strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+}
+
+function importRsaKey(pem) {
+    // fetch the part of the PEM string between header and footer
+    const pemHeader = "-----BEGIN PUBLIC KEY-----";
+    const pemFooter = "-----END PUBLIC KEY-----";
+    const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length);
+
+    console.log('importRSAKey');
+    console.log(pemContents);
+
+    const binaryDer = Buffer.from(pemContents, 'base64').toString('binary')
+
+    return subtle.importKey(
+        "spki",
+        binaryDer,
+        {
+            name: "RSA-OAEP",
+            hash: "SHA-256"
+        },
+        true,
+        ['encrypt', 'decrypt']
+    );
+}
+
+function decryptMessage(key, ciphertext) {
+    return subtle.decrypt(
+        {
+            name: "RSA-OAEP"
+        },
+        key,
+        ciphertext
+    );
+}
 
 /**
  * 
@@ -9,10 +56,10 @@ import User from '../models/user.mjs';
  * @param id 
  * @returns user
  */
- const pre_register = async (username, fullName, clearanceLvl) => {
+const pre_register = async (username, fullName, clearanceLvl) => {
     let user = await User.findUser(username);
 
-    if(user){
+    if (user) {
         return null; // username already in use
     }
 
@@ -43,11 +90,11 @@ import User from '../models/user.mjs';
 const register = async (username, id, publicEncKey, publicSignKey) => {
     let user = await User.findUser(username);
 
-    if(!user){
+    if (!user) {
         return 1; // username not found
     }
 
-    if(decript(id, publicEncKey, publicSignKey) !== user.stringId){
+    if (decript(id, publicEncKey, publicSignKey) !== user.stringId) {
         return 2; // wrong ID
     }
 
@@ -70,11 +117,11 @@ const register = async (username, id, publicEncKey, publicSignKey) => {
 const login = async (username, id) => {
     let user = await User.findUser(username);
 
-    if(!user){
+    if (!user) {
         return 1; // username not found
     }
 
-    if(decript(id, user.publicEncKey, user.publicSignKey) !== user.stringId){
+    if (decript(id, user.publicEncKey, user.publicSignKey) !== user.stringId) {
         return 2; // wrong ID
     }
 

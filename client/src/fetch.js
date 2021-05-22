@@ -7,41 +7,23 @@
  * @param {*} accessToken Access token to be used for authentication (can be null)
  * @returns Call response
  */
-export const callApiWithToken = async (apiEndpoint, query = null, method = null, body = null, accessToken = null) => {
-    const headers = new Headers();
-  
-    if (accessToken) {
-      const bearer = `Bearer ${accessToken}`;
-  
-      headers.append('Authorization', bearer);
-    }
-  
-    if (body) {
-      headers.append('Content-Type', 'application/json');
-    }
-  
-    const options = {
-      method: method || 'GET',
-      headers: headers,
-      body: body ? JSON.stringify(body) : null
-    };
-  
-    let endpoint = apiEndpoint;
-  
-    if (query) {
-      endpoint = `${endpoint}?`;
-  
-      const queryKeys = Object.keys(query);
-      const queryValues = Object.values(query);
-  
-      for (let i = 0; i < queryKeys.length; i++) {
-        if (i > 0) {
-          endpoint = `${endpoint}&`;
-        }
-  
-        endpoint = `${endpoint}${queryKeys[i]}=${queryValues[i]}`;
-      }
-    }
-  
-    return fetch(endpoint, options);
+export const callApiWithToken = async (apiEndpoint, method = null, body = null) => {
+  const headers = new Headers();
+
+  if (body) {
+    headers.append('Content-Type', 'application/json');
+  }
+
+  const options = {
+    method: method || 'GET',
+    headers: headers,
+    body: body ? JSON.stringify(body) : null
   };
+
+  console.log('callAPI');
+  console.log(body);
+
+  let endpoint = apiEndpoint;
+
+  return fetch(endpoint, options);
+};
