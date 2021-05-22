@@ -30,4 +30,3 @@ export const service = async (value1, value2, service) => {
         return 'Error 🤕';
     }
 };
-

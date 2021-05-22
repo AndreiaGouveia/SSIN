@@ -3,12 +3,6 @@
     flex-direction: row;
 }
 
-@media (max-width: 991px) {
-    #container {
-        flex-direction: column;
-    }   
-}
-
 #profile {
     text-align: center;
     width: 100%;

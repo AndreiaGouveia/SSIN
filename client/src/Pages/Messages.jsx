@@ -15,16 +15,7 @@ const Messages = (props) => {
   const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedUserName, setSelectedUserName] = useState('');
   const [conn, setConn] = useState(null);
-
   const [myMessage, setMyMessage] = useState('');
-  // Contacts is array of objects:
-  // {
-  //   username: 'username',
-  //   fullName: 'fullname',
-  //   socket: 'chat id',
-  //   publicEncKey: 'iugdfpaisugf',
-  //   publicSignKey: 'iugdfpaisugf'
-  // }
   const [contacts, setContacts] = useState([]);
   const [sentMessages, setSentMessages] = useState([]);
   const [receivedMessages, setReceivedMessages] = useState([]);
@@ -126,23 +117,25 @@ const Messages = (props) => {
 
     const receivedMessagesString = localStorage.getItem('received-messages');
 
-    if (!receivedMessagesString) return;
-
-    const userReceivedMessages = JSON.parse(receivedMessagesString).filter(
-      (message) => message.author === selectedUserName
-    );
-
-    populateRecieved(userReceivedMessages);
+    if (receivedMessagesString){
+      const userReceivedMessages = JSON.parse(receivedMessagesString).filter(
+        (message) => message.author === selectedUserName
+      );
+        
+      populateRecieved(userReceivedMessages);  
+    }
 
     const sentMessagesString = localStorage.getItem('sent-messages');
+    console.log('sent messages:');
+    console.log(sentMessagesString);
 
-    if (!sentMessagesString) return;
-
-    const userSentMessages = JSON.parse(sentMessagesString).filter(
-      (message) => message.to === selectedUserName
-    );
-
-    setSentMessages(userSentMessages);
+    if (sentMessagesString) {
+      const userSentMessages = JSON.parse(sentMessagesString).filter(
+        (message) => message.to === selectedUserName
+      );
+      
+      setSentMessages(userSentMessages);
+    }
   }, [selectedUserName]);
 
   useEffect(() => {
@@ -227,6 +220,14 @@ const Messages = (props) => {
   const sendMyMessage = async () => {
     if (!myMessage) return;
 
+    if (!conn) {
+      addToast('User is offline', {
+        appearance: 'info',
+        autoDismiss: true,
+      });
+      return;
+    }
+
     const contact = contacts.find((user) => user.username === selectedUserName);
 
     let contactPublicEncKey = contact.publicEncKey;
@@ -265,14 +266,6 @@ const Messages = (props) => {
 
     //const encodedEncryptedMessage = enc.encode(encryptedMessage);
     const toSendEncodedEncryptedMessage = ab2str(encryptedMessage);
-
-    if (!conn) {
-      addToast('User is offline', {
-        appearance: 'info',
-        autoDismiss: true,
-      });
-      return;
-    }
 
     const currentDate = new Date();
     const messageObject = {
@@ -354,6 +347,7 @@ const Messages = (props) => {
                 key={contact.socket}
                 contactName={contact.fullName}
                 onClick={() => {
+                  setConn(null);
                   setSelectedUserName(contact.username);
                   setSelectedUserId(contact.socket);
                 }}

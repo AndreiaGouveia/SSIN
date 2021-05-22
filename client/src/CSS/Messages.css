@@ -16,12 +16,6 @@
     margin: 1.5%;
 }
 
-@media (max-width: 991px) {
-    #container {
-        flex-direction: column;
-    }   
-}
-
 #container > * {
     width: 100%;
     height: auto;

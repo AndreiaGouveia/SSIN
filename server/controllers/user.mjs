@@ -1,14 +1,10 @@
 'use strict';
 
+import crypto from 'crypto';
+
 import User from '../models/user.mjs';
 
-const {
-    webcrypto: {
-        subtle,
-    }
-} = await import('crypto');
-
-
+const subtle = crypto.subtle;
 
 function str2ab(str) {
     const buf = new ArrayBuffer(str.length);

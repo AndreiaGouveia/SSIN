@@ -74,33 +74,10 @@ export const exportCryptoKey = async (key, type) => {
 
 export const register = async (username, id, password, keys) => {
 
-    console.log('Success?');
-    console.log();
-
-    //TODO encrypt with server PubK
-    /*
-    let enc = new TextEncoder();
-    let encID = enc.encode(id);
-
-    const encryptedID = window.crypto.subtle.encrypt(
-        {
-            name: 'RSA-OAEP'
-        },
-        keys.privateKey,
-        encID
-    );
-    
-            this.keys = {
-      publicKeySign: publicKeySign,
-      privateKeySign: privateKeySign,
-      publicKeyEncrypt: publicKeyEncrypt,
-      privateKeyEncrypt: privateKeyEncrypt,
-      publicKeyEncryptPEM: publicKeyEncryptPEM,
-      publicKeySignPEM: publicKeySignPEM
-    };
-
-*/
     try {
+        localStorage.setItem('username', username);
+        localStorage.setItem('id', id);
+
         let result = await callApiWithToken('http://localhost:8080/register', 'POST',
             {
                 publicEncKey: keys.publicKeyEncryptPEM,
@@ -109,8 +86,6 @@ export const register = async (username, id, password, keys) => {
 
         if (result.status === 200) {
             console.log('OK');
-            localStorage.setItem('username', username);
-            localStorage.setItem('id', id);
             const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
             localStorage.setItem('pin', hashedPassword);
             localStorage.setItem('keys', JSON.stringify(keys));
@@ -130,7 +105,10 @@ export const login = async (pin) => {
     const hashedPin = localStorage.getItem('pin');
 
     if (hashedPin) {
-        return bcrypt.compareSync(pin, hashedPin);
+        if(bcrypt.compareSync(pin, hashedPin)){
+            sessionStorage.setItem('loggedIn', 'true');
+            return true;
+        }
     }
 
     return false;
@@ -141,4 +119,3 @@ export const getUser = () => {
         'username': localStorage.getItem('username')
     };
 };
-

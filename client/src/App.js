@@ -16,7 +16,7 @@ function App() {
     <ToastProvider>
       <BrowserRouter>
         <Switch>
-          {getUser().username === null ? (
+          {sessionStorage.getItem('loggedIn') !== 'true' ? (
             <>
               <Route exact path='/' component={LogIn} />
             </>
