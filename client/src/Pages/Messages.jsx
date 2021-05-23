@@ -78,12 +78,14 @@ const Messages = (props) => {
   };
 
   useEffect(() => {
+    console.log('setclients');
     callApiWithToken('https://localhost:8080/clients', 'POST')
       .then((result) => {
         result
           .clone()
           .text()
           .then((content) => {
+            console.log('setclients done');
             const allContacts = JSON.parse(content);
             const filteredContacts = allContacts.filter(
               (contact) =>
@@ -99,6 +101,7 @@ const Messages = (props) => {
       })
       .catch((err) => {
         console.log(err);
+        console.log('setclients error');
       });
   }, []);
 
@@ -117,12 +120,12 @@ const Messages = (props) => {
 
     const receivedMessagesString = localStorage.getItem('received-messages');
 
-    if (receivedMessagesString){
+    if (receivedMessagesString) {
       const userReceivedMessages = JSON.parse(receivedMessagesString).filter(
         (message) => message.author === selectedUserName
       );
-        
-      populateRecieved(userReceivedMessages);  
+
+      populateRecieved(userReceivedMessages);
     }
 
     const sentMessagesString = localStorage.getItem('sent-messages');
@@ -133,7 +136,7 @@ const Messages = (props) => {
       const userSentMessages = JSON.parse(sentMessagesString).filter(
         (message) => message.to === selectedUserName
       );
-      
+
       setSentMessages(userSentMessages);
     }
   }, [selectedUserName]);

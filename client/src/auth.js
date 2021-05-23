@@ -78,7 +78,7 @@ export const register = async (username, id, password, keys) => {
         localStorage.setItem('username', username);
         localStorage.setItem('id', id);
 
-        let result = await callApiWithToken('http://localhost:8080/register', 'POST',
+        let result = await callApiWithToken('https://localhost:8080/register', 'POST',
             {
                 publicEncKey: keys.publicKeyEncryptPEM,
                 publicSignKey: keys.publicKeySignPEM
@@ -87,6 +87,7 @@ export const register = async (username, id, password, keys) => {
         if (result.status === 200) {
             console.log('OK');
             const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+            sessionStorage.setItem('loggedIn', 'true');
             localStorage.setItem('pin', hashedPassword);
             localStorage.setItem('keys', JSON.stringify(keys));
             return true;
@@ -105,7 +106,7 @@ export const login = async (pin) => {
     const hashedPin = localStorage.getItem('pin');
 
     if (hashedPin) {
-        if(bcrypt.compareSync(pin, hashedPin)){
+        if (bcrypt.compareSync(pin, hashedPin)) {
             sessionStorage.setItem('loggedIn', 'true');
             return true;
         }

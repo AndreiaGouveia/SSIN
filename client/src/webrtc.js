@@ -71,7 +71,7 @@ export const addConnection = (conn, setListener = true) => {
 
 
 // Connect to server with new ID or previous ID (if it exists)
-if (getUser().username !== null) {
+if (sessionStorage.getItem('loggedIn') === 'true') {
     peer = sessionPeerId ? new Peer(sessionPeerId, peerOptions) : new Peer(peerOptions);
 
 
