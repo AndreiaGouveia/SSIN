@@ -1,10 +1,17 @@
 import express from 'express';
+import https from 'https';
+import fs from 'fs';
 import dotenv from 'dotenv';
 import routes from './routes/index.mjs';
 import { connectDb } from './models/index.mjs';
 import { ExpressPeerServer } from 'peer';
 
 dotenv.config();
+
+const options = {
+   key: fs.readFileSync('./certs/localhost-key.pem'), // Replace with the path to your key
+   cert: fs.readFileSync('./certs/localhost.pem') // Replace with the path to your certificate
+}
 
 const app = express();
 
@@ -25,7 +32,7 @@ app.set('view engine', 'jade');
 app.use('/', routes);
 
 connectDb().then(() => {
-   let server = app.listen(process.env.SERVER_PORT || 8080, function () {
+   let server = https.createServer(options, app).listen(process.env.SERVER_PORT || 8080, function () {
       let port = server.address().port
       console.log("Welcome to the server. Running in port %s", port)
    });

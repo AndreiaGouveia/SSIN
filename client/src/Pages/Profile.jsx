@@ -22,7 +22,7 @@ class Profile extends React.Component {
 
   async componentDidMount() {
     try {
-      let result = await callApiWithToken('http://localhost:8080/user', 'POST');
+      let result = await callApiWithToken('https://localhost:8080/user', 'POST');
 
       if (result.status === 200) {
         const resultJson = await result.json();

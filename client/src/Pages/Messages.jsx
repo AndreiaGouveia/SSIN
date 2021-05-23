@@ -78,7 +78,7 @@ const Messages = (props) => {
   };
 
   useEffect(() => {
-    callApiWithToken('http://localhost:8080/clients', 'POST')
+    callApiWithToken('https://localhost:8080/clients', 'POST')
       .then((result) => {
         result
           .clone()
