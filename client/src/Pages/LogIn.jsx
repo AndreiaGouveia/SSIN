@@ -23,6 +23,10 @@ class LogIn extends React.Component {
   }
 
   async componentDidMount() {
+    if (this.state.registered) {
+      this.setState({ isLoading: false });
+      return;
+    }
 
     const signKeyPair = await window.crypto.subtle.generateKey(
       {
@@ -81,7 +85,7 @@ class LogIn extends React.Component {
     this.setState({ error: '' });
 
     if (await register(username, id, password, this.keys)) {
-      this.setState({ registered: true , loggedIn: true});
+      this.setState({ registered: true, loggedIn: true });
     } else {
       this.setState({ registered: false, error: 'Couldn\'t register client' });
     }

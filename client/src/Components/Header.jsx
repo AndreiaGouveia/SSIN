@@ -14,8 +14,6 @@ class Header extends React.Component {
 	}
 
 	render() {
-		console.log('I am being reloaded');
-		console.log(getUser());
 		return (
 			<>
 				<div className="App tc f3">

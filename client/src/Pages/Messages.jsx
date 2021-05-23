@@ -135,9 +135,7 @@ const Messages = (props) => {
     }
 
     const sentMessagesString = localStorage.getItem('sent-messages');
-    console.log('sent messages:');
-    console.log(sentMessagesString);
-
+    
     if (sentMessagesString) {
       const userSentMessages = JSON.parse(sentMessagesString).filter(
         (message) => message.to === selectedUserName
@@ -178,7 +176,7 @@ const Messages = (props) => {
       const conn = peer.connect(selectedUserId);
 
       conn.on('open', function () {
-        console.log('I oppened a connection!');
+        // console.log('I oppened a connection!');
 
         addConnection(conn, false);
         setConn(conn);
@@ -210,14 +208,14 @@ const Messages = (props) => {
       });
 
       conn.on('error', function (err) {
-        console.log('Sorry, could not open connection.');
+        // console.log('Sorry, could not open connection.');
         console.log(err);
 
         conn.close();
       });
 
       conn.on('close', function () {
-        console.log('Connection has been closed');
+        // console.log('Connection has been closed');
       });
     }
   }, [selectedUserId, receivedMessages, conn]);
@@ -269,11 +267,6 @@ const Messages = (props) => {
       encMessage
     );
 
-    console.log('encrypted message');
-    console.log(encryptedMessage);
-
-
-    //const encodedEncryptedMessage = enc.encode(encryptedMessage);
     const toSendEncodedEncryptedMessage = ab2str(encryptedMessage);
 
     const currentDate = new Date();
@@ -284,9 +277,6 @@ const Messages = (props) => {
       author: localStorage.getItem('username') || '',
       to: selectedUserName,
     };
-
-    console.log('conn.send(messageobject)');
-    console.log(messageObject);
 
     conn.send(messageObject);
 

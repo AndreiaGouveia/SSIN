@@ -21,9 +21,6 @@ function importRsaKey(pem) {
     const pemFooter = "-----END PUBLIC KEY-----";
     const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length);
 
-    console.log('importRSAKey');
-    console.log(pemContents);
-
     const binaryDer = Buffer.from(pemContents, 'base64').toString('binary')
 
     return subtle.importKey(

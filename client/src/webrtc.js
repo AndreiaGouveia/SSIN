@@ -27,7 +27,7 @@ const storeSessionConnections = () => {
  * @param {*} conn 
  */
 export const removeConnection = (conn) => {
-    console.log('Connection has been closed');
+    // console.log('Connection has been closed');
     const connIndex = connections.indexOf(conn);
     if (connIndex !== -1) {
         connections.splice(connIndex, 1);
@@ -44,7 +44,7 @@ export const addConnection = (conn, setListener = true) => {
     if (!conn)
         return;
 
-    console.log('New connection');
+    // console.log('New connection');
     connections.push(conn);
     storeSessionConnections();
 
@@ -76,7 +76,7 @@ if (sessionStorage.getItem('loggedIn') === 'true') {
 
 
     peer.on('open', async function (id) {
-        console.log('My peer ID is: ' + id);
+        // console.log('My peer ID is: ' + id);
 
         if (!sessionPeerId) {
             try {
@@ -84,15 +84,7 @@ if (sessionStorage.getItem('loggedIn') === 'true') {
                     {
                         socket: id
                     });
-
-                if (result.status !== 200) {
-                    console.log('update_conn error');
-                    console.log(result.status);
-                } else {
-                    console.log(result);
-                }
             } catch (err) {
-                console.log('update_conn error');
                 console.log(err);
             }
         }

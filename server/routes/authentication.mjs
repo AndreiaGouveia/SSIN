@@ -11,7 +11,7 @@ router.get('/pre-register', async (req, res) => {
 
 router.post('/pre-register', async (req, res) => {
     console.log('Pre-Register');
-    console.log(req.body);
+
     let username = req.body.username;
     let fullName = req.body.fullName;
     let clearanceLvl = req.body.clearanceLvl;

@@ -11,10 +11,6 @@ import { importRsaSignKey, importRsaEncKey, ab2str, str2ab } from './auth';
  * @returns Call response
  */
 export const callApiWithToken = async (apiEndpoint, method = null, body = {}) => {
-  console.log('callAPI');
-  console.log(apiEndpoint);
-  console.log(body);
-
   body.username = localStorage.getItem('username');
   body.ID = localStorage.getItem('id');
 
@@ -29,9 +25,6 @@ export const callApiWithToken = async (apiEndpoint, method = null, body = {}) =>
     headers: headers,
     body: body ? JSON.stringify(body) : null
   };
-
-  console.log('callAPI');
-  console.log(body);
 
   let endpoint = apiEndpoint;
 
