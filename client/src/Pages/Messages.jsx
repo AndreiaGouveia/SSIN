@@ -26,53 +26,59 @@ const Messages = (props) => {
   const verifyMessages = async (message) => {
     console.log('verify messages');
 
-    let dec = new TextDecoder();
-    let enc = new TextEncoder();
-
-    let keys = localStorage.getItem('keys');
-    keys = JSON.parse(keys);
-    const myPrivateEncKeyPEM = keys.privateKeyEncryptPEM;
-    const myPrivateEncKey = await importRsaEncKey(myPrivateEncKeyPEM, 'pkcs8', 'decrypt');
-
-
     const viewableMessage = {
       author: message.author,
       to: message.to,
       timestamp: message.timestamp
     };
 
-    const contact = contacts.find((user) => user.username === message.author);
-    const contactPublicSignKeyPEM = contact.publicSignKey;
-    const contactPublicSignKey = await importRsaSignKey(contactPublicSignKeyPEM, 'spki', 'verify');
+    try {
+      let dec = new TextDecoder();
+      let enc = new TextEncoder();
 
-    console.log('MESSAGE CONTENT');
-    console.log(message.message);
+      let keys = localStorage.getItem('keys');
+      keys = JSON.parse(keys);
+      const myPrivateEncKeyPEM = keys.privateKeyEncryptPEM;
+      const myPrivateEncKey = await importRsaEncKey(myPrivateEncKeyPEM, 'pkcs8', 'decrypt');
 
-    const encodedMsgContent = str2ab(message.message);
-    //const decodedMsgContent = dec.decode(encodedMsgContent);
+      const contact = contacts.find((user) => user.username === message.author);
+      const contactPublicSignKeyPEM = contact.publicSignKey;
+      const contactPublicSignKey = await importRsaSignKey(contactPublicSignKeyPEM, 'spki', 'verify');
 
+      try {
+        const encodedMsgContent = str2ab(message.message);
 
+        const decryptedMessage = await window.crypto.subtle.decrypt(
+          {
+            name: 'RSA-OAEP',
+          },
+          myPrivateEncKey, //from generateKey or importKey above
+          encodedMsgContent //ArrayBuffer of the data
+        );
 
-    const decryptedMessage = await window.crypto.subtle.decrypt(
-      {
-        name: 'RSA-OAEP',
-      },
-      myPrivateEncKey, //from generateKey or importKey above
-      encodedMsgContent //ArrayBuffer of the data
-    );
+        try {
+          const signature = str2ab(message.signature);
 
-    const signature = str2ab(message.signature);
+          let validMsg = await window.crypto.subtle.verify(
+            'RSASSA-PKCS1-v1_5',
+            contactPublicSignKey,
+            signature,
+            decryptedMessage
+          );
 
-    let validMsg = await window.crypto.subtle.verify(
-      'RSASSA-PKCS1-v1_5',
-      contactPublicSignKey,
-      signature,
-      decryptedMessage
-    );
+          const decodedMessage = dec.decode(decryptedMessage);
 
-    const decodedMessage = dec.decode(decryptedMessage);
+          viewableMessage.message = validMsg ? decodedMessage : '⚠ This message might not be from this sender';
+        } catch (error) {
+          viewableMessage.message = '⚠ This message might not be from this sender';
+        }
 
-    viewableMessage.message = validMsg ? decodedMessage : '⚠ This message might not be from this sender';
+      } catch (error) {
+        viewableMessage.message = '⚠ This message might have been altered';
+      }
+    } catch (err) {
+      viewableMessage.message = '⚠ Error decrypting message';
+    }
 
     return viewableMessage;
   };
