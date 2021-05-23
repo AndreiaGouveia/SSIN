@@ -82,6 +82,7 @@ const pre_register = async (username, fullName, clearanceLvl) => {
  * @returns 0 -> register successfull
  *          1 -> username not found
  *          2 -> wrong ID
+ *          3 -> user already registered
  */
 const register = async (username, id, publicEncKey, publicSignKey) => {
     let user = await User.findUser(username);
@@ -90,11 +91,19 @@ const register = async (username, id, publicEncKey, publicSignKey) => {
         return 1; // username not found
     }
 
+    console.log(user);
+    console.log(user.registered);
+
+    if (user.registered) {
+        return 3; // user already registered
+    }
+
     if (decrypt(id, publicEncKey, publicSignKey) !== user.stringId) {
         return 2; // wrong ID
     }
 
     await user.updateOne({
+        registered: true,
         publicEncKey: publicEncKey,
         publicSignKey: publicSignKey
     })

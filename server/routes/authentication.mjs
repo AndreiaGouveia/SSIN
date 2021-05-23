@@ -62,6 +62,8 @@ router.post('/register', async (req, res) => {
             return res.status(401).send("Username not found.");
         case 2:
             return res.status(401).send("Wrong ID.");
+        case 3:
+            return res.status(401).send("User already registerd.");
     }
 })
 

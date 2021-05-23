@@ -23,6 +23,9 @@ const User = mongoose.model('User', new mongoose.Schema({
     },
     socket: {
         type: String
+    },
+    registered: {
+        type: Boolean
     }
 }));
 
