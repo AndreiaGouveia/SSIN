@@ -111,7 +111,7 @@ class LogIn extends React.Component {
     } else {
       if (this.state.registered) {
         form =
-          <Form id='login-form'>
+          <Form id='login-form' onSubmit={e => { e.preventDefault(); }}>
             <Form.Group controlId='formID'>
               <Form.Control type='password' placeholder='PIN' minLength='5' onChange={(event => this.setState({ pin: event.target.value }))} />
             </Form.Group>
@@ -122,7 +122,7 @@ class LogIn extends React.Component {
       }
       else {
         form =
-          <Form id='login-form'>
+          <Form id='login-form' onSubmit={e => { e.preventDefault(); }}>
             <Form.Group controlId='formUsername'>
               <Form.Control type='text' placeholder='Username' maxLength='8' onChange={(event => this.setState({ username: event.target.value }))} />
             </Form.Group>
